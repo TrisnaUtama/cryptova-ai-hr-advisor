@@ -1,0 +1,149 @@
+{% extends 'base.html' %} {% block title %}Sign Up{% endblock %} 
+
+{% block content %}
+<div
+  class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10 sm:px-6 lg:px-8"
+>
+  <div class="w-full max-w-md space-y-8">
+    <div
+      class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 space-y-6"
+    >
+      <h2 class="text-center text-3xl font-bold text-slate-700">
+        Create an Account
+      </h2>
+      <p class="text-center text-sm text-slate-500">
+        Enter your information to get started
+      </p>
+
+      {% if messages %}
+      <div class="space-y-2">
+        {% for message in messages %}
+        <div
+          class="{% if message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300{% else %}bg-green-100 text-green-700 border border-green-300{% endif %} px-4 py-2 rounded-md text-sm"
+        >
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+        <div>
+          <label
+            for="email"
+            class="block text-sm font-medium text-slate-700 mb-1"
+            >Email address</label
+          >
+          <input
+            type="email"
+            name="email"
+            id="email"
+            autocomplete="email"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-300/30 focus:border-slate-500 transition"
+            placeholder="jack@example.com"
+          />
+        </div>
+
+        <div>
+          <label
+            for="username"
+            class="block text-sm font-medium text-slate-700 mb-1"
+            >Username</label
+          >
+          <input
+            type="text"
+            name="username"
+            id="username"
+            
+            autocomplete="username"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-300/30 focus:border-slate-500 transition"
+            placeholder="jacky"
+          />
+        </div>
+
+        <div class="relative">
+          <label
+            for="password"
+            class="block text-sm font-medium text-slate-700 mb-1"
+            >Password</label
+          >
+          <input
+            type="password"
+            name="password"
+            id="password"
+            
+            autocomplete="new-password"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-300/30 focus:border-slate-500 transition"
+            placeholder="Enter password"
+          />
+          <i
+            id="togglePassword"
+            class="fa-solid fa-eye absolute right-3 top-9 text-gray-500 cursor-pointer"
+          ></i>
+        </div>
+
+        <div class="relative">
+          <label
+            for="confirm_password"
+            class="block text-sm font-medium text-slate-700 mb-1"
+            >Confirm Password</label
+          >
+          <input
+            type="password"
+            name="confirm_password"
+            id="confirm_password"
+            
+            autocomplete="new-password"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-300/30 focus:border-slate-500 transition"
+            placeholder="Repeat password"
+          />
+          <i
+            id="toggleConfirmPassword"
+            class="fa-solid fa-eye absolute right-3 top-9 text-gray-500 cursor-pointer"
+          ></i>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-2 px-4 bg-slate-700 hover:bg-slate-800 text-white transition active:scale-95 rounded-lg font-medium"
+        >
+          Sign Up
+        </button>
+      </form>
+
+      <p class="text-center text-xs text-gray-500">
+        Already have an account?
+        <a
+          href="{% url 'sign-in' %}"
+          class="font-medium text-slate-700 hover:underline"
+          >Sign In</a
+        >
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const togglePassword = document.getElementById("togglePassword");
+  const toggleConfirmPassword = document.getElementById(
+    "toggleConfirmPassword"
+  );
+  const passwordInput = document.getElementById("password");
+  const confirmPasswordInput = document.getElementById("confirm_password");
+
+  togglePassword.addEventListener("click", () => {
+    const isVisible = passwordInput.type === "text";
+    passwordInput.type = isVisible ? "password" : "text";
+    togglePassword.classList.toggle("fa-eye");
+    togglePassword.classList.toggle("fa-eye-slash");
+  });
+
+  toggleConfirmPassword.addEventListener("click", () => {
+    const isVisible = confirmPasswordInput.type === "text";
+    confirmPasswordInput.type = isVisible ? "password" : "text";
+    toggleConfirmPassword.classList.toggle("fa-eye");
+    toggleConfirmPassword.classList.toggle("fa-eye-slash");
+  });
+</script>
+{% endblock %}

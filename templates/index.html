@@ -1,6 +1,9 @@
-{% extends 'base.html' %}
-{% block title %}Dashboard{% endblock %}
+{% extends 'base.html' %} {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="text-5xl text-red-600">Test</h1>
+<h1>Test</h1>
+<form method="POST" action="{% url 'sign-out' %}">
+  {% csrf_token %}
+  <button type="submit">Sign out</button>
+</form>
 {% endblock %}
