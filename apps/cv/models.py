@@ -76,4 +76,15 @@ class WorkExperience(BaseModel):
     class Meta:
         db_table = 'work_experiences'
         ordering = ['-created_at']
-    
+
+class Achievement(BaseModel):
+    cv = models.ForeignKey(CV, on_delete=models.CASCADE, related_name='achievements')
+    title = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(blank=True, null=True)
+    year = models.CharField(max_length=20, null=True, blank=True)
+    publisher = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        db_table = 'achievements'
+        ordering = ['-created_at']
+
