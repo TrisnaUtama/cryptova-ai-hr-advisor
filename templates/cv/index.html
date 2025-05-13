@@ -3,10 +3,10 @@
     CV Dashboard
 {% endblock title %}
 {% block sidebar_content %}
-    <div class="w-full flex flex-col space-y-3">
+    <div class="w-full flex flex-col space-y-4">
         <h1 class="text-2xl font-bold text-gray-900 mb-4">CV Management</h1>
         <!-- Upload Box -->
-        <div class="mb-8">{% include "./upload_box.html" %}</div>
+        <div class="">{% include "./upload_box.html" %}</div>
         <!-- Search and Export -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 md:space-x-4">
             <div>
@@ -26,7 +26,7 @@
             </button>
         </div>
         <!-- Candidate Table -->
-        <div class="overflow-x-auto mt-4 bg-white rounded-lg border border-gray-200">
+        <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
             <table class="min-w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-200 text-gray-500 text-left">
