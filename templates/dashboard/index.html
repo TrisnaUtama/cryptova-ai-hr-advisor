@@ -28,6 +28,7 @@
       <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700"
               data-tab="candidates">Top Candidates</button>
     </div>
+    <!-- Overview Tab -->
     <div id="tab-overview" class="tab-content active">
       <div class="grid grid-cols-4 gap-4 mb-6">
         {% include "./overview_card.html" with title="Total CVs" value=total_cvs subtitle=total_cvs_difference|add:" from yesterday" %}
@@ -50,6 +51,7 @@
         <canvas id="cvByDayChart" height="120"></canvas>
       </div>
     </div>
+    <!-- Scoring Weights Tab -->
     <div id="tab-scoring" class="tab-content">
       <div class="bg-white rounded-lg p-8 shadow mb-6">
         <h2 class="text-xl font-bold mb-6">Scoring Weights Configuration</h2>
@@ -121,43 +123,19 @@
       <div class="bg-blue-50 rounded-lg p-6 shadow">
         <h2 class="text-lg font-bold mb-2">Scoring Formula</h2>
         <pre class="bg-blue-50 text-gray-800 text-sm p-0 m-0 border-0 shadow-none">score = round(
-  100 * (
-    0.3 * min(years_exp / 15, 1.0) +
-    0.25 * (matched_skills / 20) +
-    0.15 * min(achievements / 10, 1.0) +
-    0.1 * min(certificates / 5, 1.0) +
-    0.2 * (gpa / 4.0)
-  ),
-  1
-)</pre>
+          100 * (
+            0.3 * min(years_exp / 15, 1.0) +
+            0.25 * (matched_skills / 20) +
+            0.15 * min(achievements / 10, 1.0) +
+            0.1 * min(certificates / 5, 1.0) +
+            0.2 * (gpa / 4.0)
+          ),
+          1
+        )
+        </pre>
       </div>
-      <script>
-        // Slider value update
-        const sliders = [
-          { id: 'expWeight', val: 'expWeightVal' },
-          { id: 'skillsWeight', val: 'skillsWeightVal' },
-          { id: 'achievementsWeight', val: 'achievementsWeightVal' },
-          { id: 'certificatesWeight', val: 'certificatesWeightVal' },
-          { id: 'gpaWeight', val: 'gpaWeightVal' },
-        ];
-        function updateTotal() {
-          let total = 0;
-          sliders.forEach(s => {
-            total += parseInt(document.getElementById(s.id).value);
-          });
-          document.getElementById('totalWeight').innerText = total;
-        }
-        sliders.forEach(s => {
-          const slider = document.getElementById(s.id);
-          const val = document.getElementById(s.val);
-          slider.addEventListener('input', function() {
-            val.innerText = this.value;
-            updateTotal();
-          });
-        });
-        updateTotal();
-      </script>
     </div>
+    <!-- Top Candidates Tab -->
     <div id="tab-candidates" class="tab-content">
       <div class="bg-white rounded-lg p-8 shadow mb-6">
         <h2 class="text-xl font-bold mb-6">Top Scoring Candidates</h2>
@@ -208,40 +186,9 @@
         <h2 class="text-lg font-bold mb-4">Score Distribution</h2>
         <canvas id="scoreDistChart" height="180"></canvas>
       </div>
-      <script>
-        // Score Distribution Chart
-        function renderScoreDistChart() {
-          if (window.scoreDistChartInstance) {
-            window.scoreDistChartInstance.destroy();
-          }
-          const ctx = document.getElementById('scoreDistChart');
-          if (!ctx) return;
-          window.scoreDistChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: ['90-100', '80-89', '70-79', '60-69', '50-59', '<50'],
-              datasets: [{
-                label: 'Candidates',
-                data: {{ score_distribution }},
-                backgroundColor: '#1e3a8a',
-              }]
-            },
-            options: {
-              responsive: true,
-              plugins: { legend: { display: false } },
-              scales: { y: { beginAtZero: true } }
-            }
-          });
-        }
-        document.querySelector('[data-tab="candidates"]').addEventListener('click', renderScoreDistChart);
-        if (document.getElementById('tab-candidates').classList.contains('active')) {
-          renderScoreDistChart();
-        }
-      </script>
     </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
     // Tab button functionality
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', function() {
@@ -332,5 +279,59 @@
         },
       });
     }
-  </script>
-{% endblock sidebar_content %}
+
+    // Slider value update
+    const sliders = [
+      { id: 'expWeight', val: 'expWeightVal' },
+      { id: 'skillsWeight', val: 'skillsWeightVal' },
+      { id: 'achievementsWeight', val: 'achievementsWeightVal' },
+      { id: 'certificatesWeight', val: 'certificatesWeightVal' },
+      { id: 'gpaWeight', val: 'gpaWeightVal' },
+    ];
+    function updateTotal() {
+      let total = 0;
+      sliders.forEach(s => {
+        total += parseInt(document.getElementById(s.id).value);
+      });
+      document.getElementById('totalWeight').innerText = total;
+    }
+    sliders.forEach(s => {
+      const slider = document.getElementById(s.id);
+      const val = document.getElementById(s.val);
+      slider.addEventListener('input', function() {
+        val.innerText = this.value;
+        updateTotal();
+      });
+    });
+    updateTotal();
+
+    // Score Distribution Chart
+    function renderScoreDistChart() {
+      if (window.scoreDistChartInstance) {
+        window.scoreDistChartInstance.destroy();
+      }
+      const ctx = document.getElementById('scoreDistChart');
+      if (!ctx) return;
+      window.scoreDistChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['90-100', '80-89', '70-79', '60-69', '50-59', '<50'],
+          datasets: [{
+            label: 'Candidates',
+            data: {{ score_distribution }},
+            backgroundColor: '#1e3a8a',
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+    document.querySelector('[data-tab="candidates"]').addEventListener('click', renderScoreDistChart);
+    if (document.getElementById('tab-candidates').classList.contains('active')) {
+      renderScoreDistChart();
+    }
+    </script>
+  {% endblock sidebar_content %}
