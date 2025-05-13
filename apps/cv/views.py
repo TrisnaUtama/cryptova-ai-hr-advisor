@@ -26,4 +26,4 @@ class CvDashboardView(View):
                 "created_at": "2024-06-03",
             },
         ]
-        return render(request, "cv/cv.html", {"candidates": candidates})
+        return render(request, "cv/index.html", {"candidates": candidates})
