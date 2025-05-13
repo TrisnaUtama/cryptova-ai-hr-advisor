@@ -30,10 +30,10 @@
     </div>
     <div id="tab-overview" class="tab-content active">
       <div class="grid grid-cols-4 gap-4 mb-6">
-        {% include "./overview_card.html" with title="Total CVs" value="1,284" subtitle="+24 from yesterday" %}
-        {% include "./overview_card.html" with title="Avg. Score" value="82.5" subtitle="+1.2 from last week" %}
-        {% include "./overview_card.html" with title="High Scorers" value="87" subtitle="Score > 90" %}
-        {% include "./overview_card.html" with title="Processing Rate" value="99.2%" subtitle="Successfully processed" %}
+        {% include "./overview_card.html" with title="Total CVs" value=total_cvs subtitle=total_cvs_difference|add:" from yesterday" %}
+        {% include "./overview_card.html" with title="Avg. Score" value=avg_score subtitle=avg_score_difference|add:" from last week" %}
+        {% include "./overview_card.html" with title="High Scorers" value=high_scorers subtitle="Score > 90" %}
+        {% include "./overview_card.html" with title="Processing Rate" value=processing_rate subtitle="Successfully processed" %}
       </div>
       <div class="grid grid-cols-2 gap-4 mb-6">
         <div class="bg-white rounded-lg p-6 shadow">
@@ -56,57 +56,57 @@
         <div class="space-y-6">
           <div>
             <label class="block font-medium mb-1">
-              Experience Weight: <span id="expWeightVal">30</span>%
+              Experience Weight: <span id="expWeightVal">{{ exp_weight }}</span>%
             </label>
             <input id="expWeight"
                    type="range"
                    min="0"
                    max="100"
-                   value="30"
+                   value="{{ exp_weight }}"
                    class="w-full accent-blue-800">
           </div>
           <div>
             <label class="block font-medium mb-1">
-              Skills Weight: <span id="skillsWeightVal">25</span>%
+              Skills Weight: <span id="skillsWeightVal">{{ skills_weight }}</span>%
             </label>
             <input id="skillsWeight"
                    type="range"
                    min="0"
                    max="100"
-                   value="25"
+                   value="{{ skills_weight }}"
                    class="w-full accent-blue-800">
           </div>
           <div>
             <label class="block font-medium mb-1">
-              Achievements Weight: <span id="achievementsWeightVal">15</span>%
+              Achievements Weight: <span id="achievementsWeightVal">{{ achievements_weight }}</span>%
             </label>
             <input id="achievementsWeight"
                    type="range"
                    min="0"
                    max="100"
-                   value="15"
+                   value="{{ achievements_weight }}"
                    class="w-full accent-blue-800">
           </div>
           <div>
             <label class="block font-medium mb-1">
-              Certificates Weight: <span id="certificatesWeightVal">10</span>%
+              Certificates Weight: <span id="certificatesWeightVal">{{ certificates_weight }}</span>%
             </label>
             <input id="certificatesWeight"
                    type="range"
                    min="0"
                    max="100"
-                   value="10"
+                   value="{{ certificates_weight }}"
                    class="w-full accent-blue-800">
           </div>
           <div>
             <label class="block font-medium mb-1">
-              GPA Weight: <span id="gpaWeightVal">20</span>%
+              GPA Weight: <span id="gpaWeightVal">{{ gpa_weight }}</span>%
             </label>
             <input id="gpaWeight"
                    type="range"
                    min="0"
                    max="100"
-                   value="20"
+                   value="{{ gpa_weight }}"
                    class="w-full accent-blue-800">
           </div>
           <div class="flex justify-between items-center mt-2">
@@ -222,7 +222,7 @@
               labels: ['90-100', '80-89', '70-79', '60-69', '50-59', '<50'],
               datasets: [{
                 label: 'Candidates',
-                data: [70, 140, 250, 190, 120, 80],
+                data: {{ score_distribution }},
                 backgroundColor: '#1e3a8a',
               }]
             },
@@ -257,7 +257,7 @@
       });
     });
 
-    // Chart.js hanya akan diinisialisasi jika Overview tab aktif (default)
+    // Initialize the first tab
     if (document.getElementById('tab-overview').classList.contains('active')) {
       new Chart(document.getElementById("cvProcessingChart"), {
         type: "line",
@@ -266,14 +266,14 @@
           datasets: [
             {
               label: "Uploaded",
-              data: [15, 22, 21, 27, 19, 17, 14],
+              data: {{ uploaded_cvs }},
               borderColor: "#2563eb",
               backgroundColor: "rgba(37,99,235,0.1)",
               tension: 0.4,
             },
             {
               label: "Processed",
-              data: [14, 21, 20, 25, 18, 16, 13],
+              data: {{processed_cvs}},
               borderColor: "#fbbf24",
               backgroundColor: "rgba(251,191,36,0.1)",
               tension: 0.4,
@@ -294,7 +294,7 @@
           datasets: [
             {
               label: "Score",
-              data: [82, 80, 81, 85, 83, 84, 82],
+              data: {{ avg_scores }},
               borderColor: "#2563eb",
               backgroundColor: "rgba(37,99,235,0.1)",
               tension: 0.4,
@@ -315,12 +315,12 @@
           datasets: [
             {
               label: "Uploads",
-              data: [45, 50, 38, 65, 47, 10, 8],
+              data: {{uploaded_cvs_per_day}},
               backgroundColor: "#2563eb",
             },
             {
               label: "Parsed",
-              data: [44, 49, 37, 63, 46, 9, 7],
+              data: {{parsed_cvs_per_day}},
               backgroundColor: "#fbbf24",
             },
           ],
