@@ -24,8 +24,6 @@
       <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 active"
               data-tab="overview">Overview</button>
       <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700"
-              data-tab="parsing">Parsing Errors</button>
-      <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700"
               data-tab="scoring">Scoring Weights</button>
       <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700"
               data-tab="candidates">Top Candidates</button>
@@ -51,9 +49,6 @@
         <h3 class="font-semibold mb-2">CV Processing by Day</h3>
         <canvas id="cvByDayChart" height="120"></canvas>
       </div>
-    </div>
-    <div id="tab-parsing" class="tab-content">
-      <!-- Parsing Errors content here -->
     </div>
     <div id="tab-scoring" class="tab-content">
       <div class="bg-white rounded-lg p-8 shadow mb-6">
@@ -164,7 +159,85 @@
       </script>
     </div>
     <div id="tab-candidates" class="tab-content">
-      <!-- Top Candidates content here -->
+      <div class="bg-white rounded-lg p-8 shadow mb-6">
+        <h2 class="text-xl font-bold mb-6">Top Scoring Candidates</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200 text-gray-500 text-left">
+                <th class="py-3 px-4 font-medium">Name</th>
+                <th class="py-3 px-4 font-medium">Email</th>
+                <th class="py-3 px-4 font-medium">Score</th>
+                <th class="py-3 px-4 font-medium">Key Skills</th>
+                <th class="py-3 px-4 font-medium text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              {% for candidate in top_candidates %}
+                <tr>
+                  <td class="py-3 px-4 font-medium text-gray-900">{{ candidate.name }}</td>
+                  <td class="py-3 px-4 text-gray-700">{{ candidate.email }}</td>
+                  <td class="py-3 px-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if candidate.score >= 90 %}bg-green-100 text-green-800 {% elif candidate.score >= 80 %}bg-blue-100 text-blue-800 {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                      {{ candidate.score }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 text-gray-700">{{ candidate.skills }}</td>
+                  <td class="py-3 px-4 text-center">
+                    <button class="p-1 rounded-full hover:bg-gray-100" title="View">
+                      <svg class="w-5 h-5 text-gray-500"
+                           fill="none"
+                           stroke="currentColor"
+                           viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="py-4 text-center text-gray-400">No candidates found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg p-8 shadow">
+        <h2 class="text-lg font-bold mb-4">Score Distribution</h2>
+        <canvas id="scoreDistChart" height="180"></canvas>
+      </div>
+      <script>
+        // Score Distribution Chart
+        function renderScoreDistChart() {
+          if (window.scoreDistChartInstance) {
+            window.scoreDistChartInstance.destroy();
+          }
+          const ctx = document.getElementById('scoreDistChart');
+          if (!ctx) return;
+          window.scoreDistChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['90-100', '80-89', '70-79', '60-69', '50-59', '<50'],
+              datasets: [{
+                label: 'Candidates',
+                data: [70, 140, 250, 190, 120, 80],
+                backgroundColor: '#1e3a8a',
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: { y: { beginAtZero: true } }
+            }
+          });
+        }
+        document.querySelector('[data-tab="candidates"]').addEventListener('click', renderScoreDistChart);
+        if (document.getElementById('tab-candidates').classList.contains('active')) {
+          renderScoreDistChart();
+        }
+      </script>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
