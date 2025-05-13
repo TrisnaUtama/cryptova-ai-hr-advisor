@@ -1,0 +1,33 @@
+{% extends "base_sidebar.html" %}
+{% block title %}
+    Chat History
+{% endblock title %}
+{% block sidebar_content %}
+    <div class="w-full flex flex-col space-y-4">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Chat History</h1>
+        <a href="{% url 'chat' %}"
+           class="w-max px-4 py-2 mb-4 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition inline-flex items-center">
+            <i class="fas fa-plus mr-2"></i> New Chat
+        </a>
+        <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 text-gray-500 text-left">
+                        <th class="py-3 px-4 font-medium">Created At</th>
+                        <th class="py-3 px-4 font-medium">Updated At</th>
+                        <th class="py-3 px-4 font-medium">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                        {% include "chat/chat_row.html" %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-4 px-4 text-center text-gray-400">No chat history found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock sidebar_content %}
