@@ -1,0 +1,27 @@
+<tr>
+    <td class="py-3 px-4 font-medium text-gray-900">{{ candidate.candidate_name }}</td>
+    <td class="py-3 px-4 text-gray-700">{{ candidate.candidate_email }}</td>
+    <td class="py-3 px-4">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+            {% if candidate.score >= 90 %}
+                bg-green-100 text-green-800
+            {% elif candidate.score >= 80 %}
+                bg-blue-100 text-blue-800
+            {% else %}
+                bg-yellow-100 text-yellow-800
+            {% endif %}
+        ">
+            {{ candidate.overall_score }}
+        </span>
+    </td>
+    <td class="py-3 px-4 text-gray-500">{{ candidate.created_at }}</td>
+    <td class="py-3 px-4 text-right text-gray-400">
+        <button class="p-1 rounded-full hover:bg-gray-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="1.5" />
+                <circle cx="19.5" cy="12" r="1.5" />
+                <circle cx="4.5" cy="12" r="1.5" />
+            </svg>
+        </button>
+    </td>
+</tr>

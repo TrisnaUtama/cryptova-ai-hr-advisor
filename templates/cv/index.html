@@ -1,0 +1,53 @@
+{% extends "base_sidebar.html" %}
+{% block title %}
+    CV Dashboard
+{% endblock title %}
+{% block sidebar_content %}
+    <div class="w-full flex flex-col space-y-4">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">CV Management</h1>
+        <!-- Upload Box -->
+        <div class="">{% include "./upload_box.html" %}</div>
+        <!-- Search and Export -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 md:space-x-4">
+            <div>
+                <input type="text"
+                       placeholder="Search candidates..."
+                       class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" />
+            </div>
+            <button class="flex items-center px-4 py-2 border cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border-gray-200 shadow-2xl text-sm font-medium mt-2 md:mt-0">
+                <svg width="20"
+                     class="mr-2"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+                    <path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Export CSV
+            </button>
+        </div>
+        <!-- Candidate Table -->
+        <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 text-gray-500 text-left">
+                        <th class="py-3 px-4 font-medium">Name</th>
+                        <th class="py-3 px-4 font-medium">Email</th>
+                        <th class="py-3 px-4 font-medium">
+                            Score
+                            <span class="inline-block align-middle ml-1">↓</span>
+                        </th>
+                        <th class="py-3 px-4 font-medium">Date Added</th>
+                        <th class="py-3 px-4"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% with candidates=candidates %}
+                        {% for candidate in candidates %}
+                            {% include "./candidate_row.html" with candidate=candidate %}
+                        {% endfor %}
+                    {% endwith %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock sidebar_content %}
