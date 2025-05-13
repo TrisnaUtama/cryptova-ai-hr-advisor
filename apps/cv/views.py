@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.views import View
+from core.utils import LoginCheckMixin
 
-class CvDashboardView(View):
+class CvDashboardView(LoginCheckMixin, View):
     def get(self, request):
         candidates = [
             {

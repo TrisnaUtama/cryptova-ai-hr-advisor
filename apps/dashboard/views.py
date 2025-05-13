@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.views import View
+from core.utils import LoginCheckMixin
 
 
-class DashboardView(View):
+class DashboardView(LoginCheckMixin, View):
     def get(self, request):
         context = {
             "total_cvs": 1284,

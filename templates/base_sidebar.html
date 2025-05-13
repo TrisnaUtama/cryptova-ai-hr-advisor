@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block content %}
-<style>
+{% extends "base.html" %}
+{% block content %}
+  <style>
   .sidebar-collapsed {
     width: 64px !important;
     min-width: 64px !important;
@@ -53,64 +54,46 @@
   .sidebar-label {
     white-space: nowrap;
   }
-</style>
-<div class="flex min-w-full min-h-screen bg-gray-50">
-  <button
-    id="sidebar-toggle"
-    class="absolute top-4 left-4 z-20 p-2 rounded-md bg-white border border-gray-200 shadow-md md:hidden"
-  >
-    <i class="fa-solid fa-bars text-xl text-gray-700"></i>
-  </button>
-
-  <aside
-    id="sidebar"
-    class="py-10 bg-white px-4 border-r border-gray-200 flex flex-col min-h-screen transition-all duration-300"
-    style="width: 260px"
-  >
-    <div class="sidebar-header px-3">
-      <button
-        id="sidebar-toggle-inside"
-        class="bg-transparent hover:bg-gray-100 px-4 rounded-lg cursor-pointer hidden md:block"
-      >
-        <i class="fa-solid fa-bars text-md text-gray-700"></i>
-      </button>
-      <span class="text-xl font-bold text-gray-900 -ml-2 sidebar-title">
-        CV-Insight
-      </span>
-    </div>
-
-    <nav class="flex-1 p-4 space-y-1">
-      <a
-        href="{% url 'cv' %}"
-        class="flex transition-all items-center px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-100 font-medium {% if request.resolver_match.url_name == 'cv' %}bg-gray-100{% endif %}"
-      >
-        <i
-          class="fa-solid fa-file-invoice w-4 h-4 mr-3 text-sm text-gray-700"
-        ></i>
-        <span class="sidebar-label">CV Management</span>
-      </a>
-      <a
-        href=""
-        class="flex transition-all items-center px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-100 font-medium {% if request.resolver_match.url_name == 'chat' %}bg-gray-100{% endif %}"
-      >
-        <i class="fa-solid fa-message w-4 h-4 mr-3 text-sm text-gray-700"></i>
-        <span class="sidebar-label">Chat</span>
-      </a>
-      <a
-        href="{% url 'dashboard_index' %}"
-        class="flex transition-all items-center px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-100 font-medium {% if request.resolver_match.url_name == 'dashboard_index' %}bg-gray-100{% endif %}"
-      >
-        <i
-          class="fa-solid fa-chart-line w-4 h-4 mr-3 text-sm text-gray-700"
-        ></i>
-        <span class="sidebar-label">Dashboard</span>
-      </a>
-    </nav>
-  </aside>
-  <!-- Main Content -->
-  <main class="flex-1 p-10">{% block sidebar_content %}{% endblock %}</main>
-</div>
-<script>
+  </style>
+  <div class="flex min-w-full min-h-screen bg-gray-50">
+    <button id="sidebar-toggle"
+            class="absolute top-4 left-4 z-20 p-2 rounded-md bg-white border border-gray-200 shadow-md md:hidden">
+      <i class="fa-solid fa-bars text-xl text-gray-700"></i>
+    </button>
+    <aside id="sidebar"
+           class="py-10 bg-white px-4 border-r border-gray-200 flex flex-col min-h-screen transition-all duration-300"
+           style="width: 260px">
+      <div class="sidebar-header px-3">
+        <button id="sidebar-toggle-inside"
+                class="bg-transparent hover:bg-gray-100 px-4 rounded-lg cursor-pointer hidden md:block">
+          <i class="fa-solid fa-bars text-md text-gray-700"></i>
+        </button>
+        <span class="text-xl font-bold text-gray-900 -ml-2 sidebar-title">CV-Insight</span>
+      </div>
+      <nav class="flex-1 p-4 space-y-1">
+        <a href="{% url 'cv' %}"
+           class="flex transition-all items-center px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-100 font-medium {% if request.resolver_match.url_name == 'cv' %}bg-gray-100{% endif %}">
+          <i class="fa-solid fa-file-invoice w-4 h-4 mr-3 text-sm text-gray-700"></i>
+          <span class="sidebar-label">CV Management</span>
+        </a>
+        <a href=""
+           class="flex transition-all items-center px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-100 font-medium {% if request.resolver_match.url_name == 'chat' %}bg-gray-100{% endif %}">
+          <i class="fa-solid fa-message w-4 h-4 mr-3 text-sm text-gray-700"></i>
+          <span class="sidebar-label">Chat</span>
+        </a>
+        <a href="{% url 'dashboard' %}"
+           class="flex transition-all items-center px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-100 font-medium {% if request.resolver_match.url_name == 'dashboard' %}bg-gray-100{% endif %}">
+          <i class="fa-solid fa-chart-line w-4 h-4 mr-3 text-sm text-gray-700"></i>
+          <span class="sidebar-label">Dashboard</span>
+        </a>
+      </nav>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-1 p-10">
+      {% block sidebar_content %}{% endblock %}
+    </main>
+  </div>
+  <script>
   document.addEventListener("DOMContentLoaded", function () {
     const sidebar = document.getElementById("sidebar");
     const toggle = document.getElementById("sidebar-toggle");
@@ -121,5 +104,5 @@
     toggle.addEventListener("click", toggleSidebar);
     toggleInside.addEventListener("click", toggleSidebar);
   });
-</script>
+  </script>
 {% endblock %}
