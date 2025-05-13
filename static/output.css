@@ -324,11 +324,38 @@
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
+  .h-\[400px\] {
+    height: 400px;
+  }
   .h-full {
     height: 100%;
   }
   .h-screen {
     height: 100vh;
+  }
+  .max-h-\[calc\(100vh-20px\)\] {
+    max-height: calc(100vh - 20px);
+  }
+  .max-h-\[calc\(100vh-200px\)\] {
+    max-height: calc(100vh - 200px);
+  }
+  .max-h-\[calc\(100vh-250px\)\] {
+    max-height: calc(100vh - 250px);
+  }
+  .max-h-\[calc\(100vh-260px\)\] {
+    max-height: calc(100vh - 260px);
+  }
+  .max-h-\[calc\(100vh-270px\)\] {
+    max-height: calc(100vh - 270px);
+  }
+  .max-h-\[calc\(100vh-280px\)\] {
+    max-height: calc(100vh - 280px);
+  }
+  .max-h-\[calc\(100vh-300px\)\] {
+    max-height: calc(100vh - 300px);
+  }
+  .min-h-0 {
+    min-height: calc(var(--spacing) * 0);
   }
   .min-h-\[600px\] {
     min-height: 600px;

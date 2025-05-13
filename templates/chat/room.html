@@ -25,7 +25,7 @@ CV Chat Assistant
             </button>
         </div>
     </div>
-    <div class="flex-1 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4" id="chat-messages">
+    <div class="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4 max-h-[calc(100vh-280px)]" id="chat-messages">
         {% if chats|length == 0 and show_greeting %}
         <div class="flex justify-start mb-4">
             <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
@@ -39,7 +39,7 @@ CV Chat Assistant
         {% if chat.role == 'user' or chat.role == None %}
         <div class="flex justify-end mb-4">
             <div class="max-w-lg bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md">
-                <div class="text-xs text-right mb-1 opacity-70">You</div>
+                <div class="text-xs text-left mb-1 opacity-70">You</div>
                 <div>{{ chat.message }}</div>
             </div>
         </div>
@@ -67,7 +67,7 @@ CV Chat Assistant
     <form method="post" class="flex items-center gap-2 mt-auto" autocomplete="off">
         {% csrf_token %}
         <input type="hidden" name="session_id" value="{{ session_id|default:'' }}">
-        <input name="question" type="text" placeholder="Ask about candidates..."
+        <input id="question-input" name="question" type="text" placeholder="Ask about candidates..."
             class="flex-1 border border-gray-200 rounded-lg px-4 py-2 h-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
             autocomplete="off" required />
         <button type="submit"
@@ -75,5 +75,11 @@ CV Chat Assistant
             Send
         </button>
     </form>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            var input = document.getElementById('question-input');
+            if (input) input.focus();
+        });
+    </script>
 </div>
 {% endblock sidebar_content %}
