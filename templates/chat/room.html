@@ -12,7 +12,7 @@ CV Chat Assistant
             CV-Insight-AI
             <span class="ml-1 px-2 py-0.5 rounded-full bg-gray-100 border text-xs font-medium text-gray-600 align-middle">v1.0</span>
         </div>
-        <div>
+        <div class="inline-flex items-center gap-2">
             <button
                 class="px-4 py-2 cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border border-gray-200 shadow-md text-sm font-medium">
                 <i class="fas fa-download mr-2"></i>
@@ -23,6 +23,11 @@ CV Chat Assistant
                 <i class="fas fa-arrows-rotate mr-2"></i>
                 Reset
             </button>
+            <a href="{% url 'chat_history' %}"
+                class="px-4 py-2 cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border border-gray-200 shadow-md text-sm font-medium inline-flex items-center">
+                <i class="fas fa-clock-rotate-left mr-2"></i>
+                History
+            </a>
         </div>
     </div>
     <div class="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4 max-h-[calc(100vh-280px)]" id="chat-messages">
@@ -79,6 +84,11 @@ CV Chat Assistant
         window.addEventListener('DOMContentLoaded', function() {
             var input = document.getElementById('question-input');
             if (input) input.focus();
+            // Scroll chat-messages ke bawah saat halaman dimuat
+            var chatBox = document.getElementById('chat-messages');
+            if (chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
         });
     </script>
 </div>

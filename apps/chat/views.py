@@ -18,11 +18,26 @@ class ChatRoomView(LoginCheckMixin, View):
         return super().dispatch(*args, **kwargs)
 
     def get(self, request):
-        # Saat pertama buka, session_id kosong
+        session_id = request.GET.get("session_id")
+        chats = []
+        show_greeting = True
+        if session_id:
+            try:
+                session = ChatSession.objects.get(id=session_id, user=request.user)
+                chats = list(session.chats.order_by("created_at"))
+                show_greeting = False
+            except ChatSession.DoesNotExist:
+                session = None
+        else:
+            session = None
         return render(
             request,
             "chat/room.html",
-            {"chats": [], "show_greeting": True, "session_id": ""},
+            {
+                "chats": chats,
+                "show_greeting": show_greeting,
+                "session_id": session_id or "",
+            },
         )
 
     def post(self, request):
