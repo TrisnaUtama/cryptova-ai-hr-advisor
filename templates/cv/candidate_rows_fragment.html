@@ -1,0 +1,7 @@
+{% for candidate in candidates %}
+    {% include "./candidate_row.html" with candidate=candidate %}
+{% empty %}
+    <tr>
+        <td colspan="5" class="py-4 px-4 text-center text-gray-400">No candidates found.</td>
+    </tr>
+{% endfor %}

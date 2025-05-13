@@ -75,7 +75,7 @@
           <i class="fa-solid fa-file-invoice w-4 h-4 mr-3 text-sm text-gray-700"></i>
           <span class="sidebar-label">CV Management</span>
         </a>
-        <a href=""
+        <a href="{% url 'chat' %}"
            class="flex transition-all items-center px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-100 font-medium {% if request.resolver_match.url_name == 'chat' %}bg-gray-100{% endif %}">
           <i class="fa-solid fa-message w-4 h-4 mr-3 text-sm text-gray-700"></i>
           <span class="sidebar-label">Chat</span>

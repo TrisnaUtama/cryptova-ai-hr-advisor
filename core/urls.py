@@ -9,6 +9,7 @@ urlpatterns = [
     path("", include("apps.auths.urls")),
     path("", include("apps.cv.urls")),
     path("", include("apps.dashboard.urls")),
+    path("", include("apps.chat.urls")),
 ]
 
 websocket_urlpatterns = [
