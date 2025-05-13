@@ -1,0 +1,30 @@
+{% extends "base_sidebar.html" %}
+{% block title %}
+    Chat History
+{% endblock title %}
+{% block sidebar_content %}
+    <div class="w-full flex flex-col space-y-4">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Chat History</h1>
+        <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 text-gray-500 text-left">
+                        <th class="py-3 px-4 font-medium">Role</th>
+                        <th class="py-3 px-4 font-medium">Question</th>
+                        <th class="py-3 px-4 font-medium">Answer</th>
+                        <th class="py-3 px-4 font-medium">Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chat in chats %}
+                        {% include "chat/chat_row.html" %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-4 px-4 text-center text-gray-400">No chat history found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock sidebar_content %}
