@@ -45,14 +45,17 @@ class ChatRoomView(LoginCheckMixin, View):
         session_id = request.POST.get("session_id")
         chats = []
         session = None
+        is_new_session = False
         if message:
             if session_id:
                 try:
                     session = ChatSession.objects.get(id=session_id, user=request.user)
                 except ChatSession.DoesNotExist:
                     session = ChatSession.objects.create(user=request.user)
+                    is_new_session = True
             else:
                 session = ChatSession.objects.create(user=request.user)
+                is_new_session = True
             Chat.objects.create(
                 session=session, user=request.user, role="user", message=message
             )
@@ -63,6 +66,8 @@ class ChatRoomView(LoginCheckMixin, View):
                 message="Hello! I'm CV-Insight-AI, your assistant for analyzing candidate CVs. How can I help you today?",
             )
             chats = list(session.chats.order_by("created_at"))
+            if is_new_session:
+                return redirect(f"/chat?session_id={session.id}")
         return render(
             request,
             "chat/room.html",
