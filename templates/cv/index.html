@@ -10,11 +10,11 @@ CV Dashboard
     <!-- Search and Export -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 md:space-x-4">
         <div>
-            <input type="text" placeholder="Search candidates..."
+            <input type="text" id="candidate-search" placeholder="Search candidates..."
                 class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" />
         </div>
         <button
-            class="flex items-center px-4 py-2 border cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border-gray-200 shadow-2xl text-sm font-medium mt-2 md:mt-0">
+            class="flex items-center px-4 py-2 border cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border-gray-200 text-sm font-medium mt-2 md:mt-0">
             <svg width="20" class="mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -36,7 +36,7 @@ CV Dashboard
                     <th class="py-3 px-4"></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody id="candidate-table-body" class="divide-y divide-gray-200">
                 {% with candidates=candidates %}
                 {% for candidate in candidates %}
                 {% include "./candidate_row.html" with candidate=candidate %}
@@ -58,5 +58,21 @@ CV Dashboard
         console.log("Disconnected from the server");
     }
 
+    // Debounced real-time search
+    let searchTimeout = null;
+    const searchInput = document.getElementById('candidate-search');
+    const tableBody = document.getElementById('candidate-table-body');
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const query = searchInput.value.trim();
+            fetch(`/cv/search/?q=${encodeURIComponent(query)}`)
+                .then(response => response.text())
+                .then(html => {
+                    tableBody.innerHTML = html;
+                });
+        }, 300);
+    });
 </script>
 {% endblock sidebar_content %}
