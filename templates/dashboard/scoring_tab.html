@@ -1,0 +1,84 @@
+{% comment %} Scoring Weights Tab Component {% endcomment %}
+<div id="tab-scoring" class="tab-content">
+    <div class="bg-white rounded-lg p-8 shadow mb-6">
+        <h2 class="text-xl font-bold mb-6">Scoring Weights Configuration</h2>
+        <div class="space-y-6">
+            <div>
+                <label class="block font-medium mb-1">
+                    Experience Weight: <span id="expWeightVal">{{ exp_weight }}</span>%
+                </label>
+                <input id="expWeight"
+                       type="range"
+                       min="0"
+                       max="100"
+                       value="{{ exp_weight }}"
+                       class="w-full accent-blue-800">
+            </div>
+            <div>
+                <label class="block font-medium mb-1">
+                    Skills Weight: <span id="skillsWeightVal">{{ skills_weight }}</span>%
+                </label>
+                <input id="skillsWeight"
+                       type="range"
+                       min="0"
+                       max="100"
+                       value="{{ skills_weight }}"
+                       class="w-full accent-blue-800">
+            </div>
+            <div>
+                <label class="block font-medium mb-1">
+                    Achievements Weight: <span id="achievementsWeightVal">{{ achievements_weight }}</span>%
+                </label>
+                <input id="achievementsWeight"
+                       type="range"
+                       min="0"
+                       max="100"
+                       value="{{ achievements_weight }}"
+                       class="w-full accent-blue-800">
+            </div>
+            <div>
+                <label class="block font-medium mb-1">
+                    Certificates Weight: <span id="certificatesWeightVal">{{ certificates_weight }}</span>%
+                </label>
+                <input id="certificatesWeight"
+                       type="range"
+                       min="0"
+                       max="100"
+                       value="{{ certificates_weight }}"
+                       class="w-full accent-blue-800">
+            </div>
+            <div>
+                <label class="block font-medium mb-1">
+                    GPA Weight: <span id="gpaWeightVal">{{ gpa_weight }}</span>%
+                </label>
+                <input id="gpaWeight"
+                       type="range"
+                       min="0"
+                       max="100"
+                       value="{{ gpa_weight }}"
+                       class="w-full accent-blue-800">
+            </div>
+            <div class="flex justify-between items-center mt-2">
+                <span class="text-gray-500 text-sm">Total: <span id="totalWeight">100</span>%</span>
+                <button class="px-5 py-2 cursor-pointer bg-gray-900 text-gray-100 rounded-lg font-medium flex items-center gap-2 hover:bg-gray-200 hover:text-gray-900 transition">
+                    <i class="fa-solid fa-gear"></i>
+                    Apply & Re-score
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="bg-blue-50 rounded-lg p-6 shadow">
+        <h2 class="text-lg font-bold mb-2">Scoring Formula</h2>
+        <pre class="bg-blue-50 text-gray-800 text-sm p-0 m-0 border-0 shadow-none">score = round(
+      100 * (
+        0.3 * min(years_exp / 15, 1.0) +
+        0.25 * (matched_skills / 20) +
+        0.15 * min(achievements / 10, 1.0) +
+        0.1 * min(certificates / 5, 1.0) +
+        0.2 * (gpa / 4.0)
+      ),
+      1
+    )
+    </pre>
+    </div>
+</div>
