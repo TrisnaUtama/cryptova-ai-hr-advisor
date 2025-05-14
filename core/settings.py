@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
-from dotenv import load_dotenv
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -89,21 +90,15 @@ ASGI_APPLICATION = "core.asgi.application"
 
 DATABASES = {
     "default": {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME' : os.getenv('DB_NAME'),
-        'USER' : os.getenv('DB_USER'),
-        'PASSWORD' : os.getenv("DB_PASSWORD"),
-        'HOST' : os.getenv('DB_HOST'),
-        'PORT' : os.getenv('DB_PORT'),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
-## static files 
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
 
 
 # Password validation
@@ -148,6 +143,19 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
+
+## static files
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": MEDIA_ROOT,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
