@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
-from django.views import View
-from core.utils import LoginCheckMixin
-from .models import Chat, ChatSession
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+
+from core.utils import LoginCheckMixin
+
+from .models import Chat, ChatSession
 
 
 class ChatHistoryView(LoginCheckMixin, View):
