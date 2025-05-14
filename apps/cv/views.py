@@ -3,68 +3,45 @@ from django.views import View
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_GET
+from django.db import models
 
 from core.utils import LoginCheckMixin
 
 class CvDashboardView(LoginCheckMixin, View):
     def get(self, request):
+        from .models import CV
+        candidates_qs = CV.objects.all().order_by('-created_at')[:100]
         candidates = [
             {
-                "candidate_name": "Budi Santoso",
-                "candidate_email": "budi@example.com",
-                "overall_score": 92,
-                "score": 92,
-                "created_at": "2024-06-01",
-            },
-            {
-                "candidate_name": "Siti Aminah",
-                "candidate_email": "siti@example.com",
-                "overall_score": 85,
-                "score": 85,
-                "created_at": "2024-06-02",
-            },
-            {
-                "candidate_name": "Andi Wijaya",
-                "candidate_email": "andi@example.com",
-                "overall_score": 78,
-                "score": 78,
-                "created_at": "2024-06-03",
-            },
+                "candidate_name": c.candidate_name,
+                "candidate_email": c.candidate_email,
+                "overall_score": c.overall_score,
+                "score": c.overall_score,  # jika ingin score lain, ganti field
+                "created_at": c.created_at.strftime('%Y-%m-%d') if c.created_at else '',
+            }
+            for c in candidates_qs
         ]
         return render(request, "cv/index.html", {"candidates": candidates})
 
 @require_GET
 def search_candidates(request):
+    from .models import CV
     q = request.GET.get("q", "").strip().lower()
-    all_candidates = [
-        {
-            "candidate_name": "Budi Santoso",
-            "candidate_email": "budi@example.com",
-            "overall_score": 92,
-            "score": 92,
-            "created_at": "2024-06-01",
-        },
-        {
-            "candidate_name": "Siti Aminah",
-            "candidate_email": "siti@example.com",
-            "overall_score": 85,
-            "score": 85,
-            "created_at": "2024-06-02",
-        },
-        {
-            "candidate_name": "Andi Wijaya",
-            "candidate_email": "andi@example.com",
-            "overall_score": 78,
-            "score": 78,
-            "created_at": "2024-06-03",
-        },
-    ]
+    qs = CV.objects.all()
     if q:
-        candidates = [
-            c for c in all_candidates
-            if q in c["candidate_name"].lower() or q in c["candidate_email"].lower()
-        ]
-    else:
-        candidates = all_candidates
+        qs = qs.filter(
+            models.Q(candidate_name__icontains=q) |
+            models.Q(candidate_email__icontains=q)
+        )
+    candidates = [
+        {
+            "candidate_name": c.candidate_name,
+            "candidate_email": c.candidate_email,
+            "overall_score": c.overall_score,
+            "score": c.overall_score,
+            "created_at": c.created_at.strftime('%Y-%m-%d') if c.created_at else '',
+        }
+        for c in qs.order_by('-created_at')[:100]
+    ]
     html = render_to_string("cv/candidate_rows_fragment.html", {"candidates": candidates})
     return HttpResponse(html)
