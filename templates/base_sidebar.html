@@ -99,7 +99,7 @@
     </aside>
     <!-- Main Content -->
     <main id="main-content"
-          class="flex-1 p-10 ml-56 transition-all duration-300">
+          class="flex-1 p-10 ml-60 transition-all duration-300">
       {% block sidebar_content %}
       {% endblock sidebar_content %}
     </main>
@@ -113,11 +113,11 @@
     function toggleSidebar() {
       sidebar.classList.toggle("sidebar-collapsed");
       if (sidebar.classList.contains("sidebar-collapsed")) {
-        mainContent.classList.remove("ml-56");
-        mainContent.classList.add("ml-12");
+        mainContent.classList.remove("ml-60");
+        mainContent.classList.add("ml-16");
       } else {
-        mainContent.classList.remove("ml-12");
-        mainContent.classList.add("ml-56");
+        mainContent.classList.remove("ml-16");
+        mainContent.classList.add("ml-60");
       }
     }
     toggle.addEventListener("click", toggleSidebar);
