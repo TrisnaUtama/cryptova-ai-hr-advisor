@@ -50,6 +50,19 @@ if (
   });
 
   // Average score chart
+  const avgScores = window.avg_scores || [];
+  let minY = 60;
+  let maxY = 100;
+  if (avgScores.length > 0) {
+    minY = Math.floor(Math.min(...avgScores));
+    maxY = Math.ceil(Math.max(...avgScores));
+    minY = Math.max(minY - 5, 0);
+    maxY = Math.min(maxY + 5, 100);
+    if (minY === maxY) {
+      minY = minY - 5;
+      maxY = maxY + 5;
+    }
+  }
   new Chart(document.getElementById("avgScoreChart"), {
     type: "line",
     data: {
@@ -57,7 +70,7 @@ if (
       datasets: [
         {
           label: "Score",
-          data: window.avg_scores,
+          data: avgScores,
           borderColor: "#2563eb",
           backgroundColor: "rgba(37,99,235,0.1)",
           tension: 0.4,
@@ -67,7 +80,7 @@ if (
     options: {
       responsive: true,
       plugins: { legend: { display: false } },
-      scales: { y: { min: 60, max: 100 } },
+      scales: { y: { min: minY, max: maxY } },
     },
   });
 
