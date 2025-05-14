@@ -1,5 +1,7 @@
 from django.db import models
+
 from .utils import generate_id
+
 
 class BaseModel(models.Model):
     id = models.CharField(

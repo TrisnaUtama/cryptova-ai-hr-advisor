@@ -1,19 +1,245 @@
-<div class="flex flex-col space-y-3">
-    <p class="text-gray-500">Upload and manage candidate CVs</p>
+<div class="flex flex-col space-y-3 relative">
+  <p class="text-gray-500">Upload and manage candidate CVs</p>
 
-    <div class="border bg-white rounded-xl border-gray-200 p-6">
-        <h2 class="text-xl font-semibold mb-4">Upload CVs</h2>
-        <div
-            class="border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center py-6 px-4 bg-gray-50">
-            <svg class="text-gray-500" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor">
-                <path
-                    d="M220-160q-24 0-42-18t-18-42v-113q0-12.75 8.68-21.38 8.67-8.62 21.5-8.62 12.82 0 21.32 8.62 8.5 8.63 8.5 21.38v113h520v-113q0-12.75 8.68-21.38 8.67-8.62 21.5-8.62 12.82 0 21.32 8.62 8.5 8.63 8.5 21.38v113q0 24-18 42t-42 18H220Zm230-524-99 99q-8.8 9-20.9 8.5-12.1-.5-21.49-9.5-8.61-9-8.61-21.5t9-21.5l150-150q5-5 10.13-7 5.14-2 11-2 5.87 0 10.87 2 5 2 10 7l151 151q9 9 9 21t-8.61 21q-9.39 9-21.89 9t-21.5-9l-99-98v341q0 12.75-8.68 21.37-8.67 8.63-21.5 8.63-12.82 0-21.32-8.63-8.5-8.62-8.5-21.37v-341Z" />
-            </svg>
-            <p class="font-medium text-gray-700 mb-1 mt-2">Drag & Drop CVs</p>
-            <p class="text-gray-400 text-xs mb-4">Upload up to 20 files (PDF, DOC, DOCX, max 10MB each)</p>
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+  <div class="border bg-white rounded-xl border-gray-200 p-6 shadow-md">
+    <h2 class="text-lg font-semibold mb-4 text-gray-800">Upload CVs</h2>
+
+    <form
+      id="cv-upload-form"
+      method="post"
+      enctype="multipart/form-data"
+      action="{% url 'cv' %}"
+    >
+      {% csrf_token %}
+
+      <!-- Dropzone -->
+      <div
+        id="drop-zone"
+        class="relative border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer p-6 flex flex-col items-center justify-center text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+      >
+        <input
+          id="cv-files"
+          name="cv_file[]"
+          type="file"
+          multiple
+          accept=".pdf,.doc,.docx"
+          class="absolute inset-0 opacity-0 z-10 cursor-pointer"
+        />
+
+        <!-- Icon -->
+        <svg class="h-10 w-10 mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+          <path d="M220-160q-24 0-42-18t-18-42v-113q0-12.75 8.68-21.38 8.67-8.62 21.5-8.62 12.82 0 21.32 8.62 8.5 8.63 8.5 21.38v113h520v-113q0-12.75 8.68-21.38 8.67-8.62 21.5-8.62 12.82 0 21.32 8.62 8.5 8.63 8.5 21.38v113q0 24-18 42t-42 18H220Zm230-524-99 99q-8.8 9-20.9 8.5-12.1-.5-21.49-9.5-8.61-9-8.61-21.5t9-21.5l150-150q5-5 10.13-7 5.14-2 11-2 5.87 0 10.87 2 5 2 10 7l151 151q9 9 9 21t-8.61 21q-9.39 9-21.89 9t-21.5-9l-99-98v341q0 12.75-8.68 21.37-8.67 8.63-21.5 8.63-12.82 0-21.32-8.63-8.5-8.62-8.5-21.37v-341Z"/>
+        </svg>
+
+        <p class="font-medium text-gray-700 text-sm">Drag & Drop CVs</p>
+        <p class="text-gray-400 text-xs mt-1">PDF, DOC, DOCX • Max 10MB each</p>
+      </div>
+
+      <!-- File List -->
+      <div id="file-list-container" class="mt-5 hidden">
+        <div class="flex justify-between items-center mb-3">
+          <p class="text-sm font-semibold text-gray-700">
+            Selected Files (<span id="file-count">0</span>)
+          </p>
+          <div class="flex gap-2">
             <button
-                class="flex items-center px-4 py-2 border cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border-gray-200 shadow-2xl text-sm font-medium">Select
-                Files</button>
+              type="button"
+              id="select-more"
+              class="text-xs font-semibold px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 transition shadow-sm" >
+              Add More
+            </button>
+            <button
+              type="submit"
+              class="text-xs font-semibold px-3 py-1.5 rounded-md bg-blue-800 hover:bg-blue-900 text-white transition shadow-sm">
+              Upload
+            </button>
+          </div>
         </div>
-    </div>
+        <div class="border border-gray-200 rounded-xl bg-white">
+          <div
+            id="file-list-wrapper"
+            class="max-h-48 overflow-y-auto text-sm divide-y divide-gray-200 px-4 py-2 text-gray-700 space-y-1">
+            <ul id="file-list"></ul>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
+
+<!-- messages toasts -->
+{% if messages %}
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const toastContainer = document.getElementById("toast-container");
+    {% for message in messages %}
+      showToast("{{ message.tags }}", "{{ message|escapejs }}");
+    {% endfor %}
+  });
+</script>
+{% endif %}
+
+<script>
+  const dropZone = document.getElementById("drop-zone");
+  const fileInput = document.getElementById("cv-files");
+  const fileListContainer = document.getElementById("file-list-container");
+  const fileListWrapper = document.getElementById("file-list-wrapper");
+  const fileList = document.getElementById("file-list");
+  const fileCount = document.getElementById("file-count");
+  const selectMoreBtn = document.getElementById("select-more");
+  let selectedFiles = [];
+  const MAX_FILES = 20;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+  function showToast(type, message) {
+    const toast = document.createElement("div");
+    const colorMap = {
+      success: "bg-green-100 text-green-800 border-green-300",
+      error: "bg-red-100 text-red-800 border-red-300",
+      warning: "bg-yellow-100 text-yellow-800 border-yellow-300",
+      info: "bg-blue-100 text-blue-800 border-blue-300",
+    };
+    toast.className = `border px-4 py-2 rounded-lg shadow-md text-sm ${colorMap[type] || colorMap.info}`;
+    toast.textContent = message;
+
+    const container = document.getElementById("toast-container");
+    container.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 5000);
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  }
+
+  function renderFileList() {
+    fileList.innerHTML = "";
+    fileCount.textContent = selectedFiles.length;
+
+    selectedFiles.forEach((file, index) => {
+      const li = document.createElement("li");
+      li.className = "flex items-center justify-between py-2 px-3 hover:bg-gray-100";
+
+      const fileInfo = document.createElement("div");
+      fileInfo.className = "truncate flex-1";
+      fileInfo.textContent = `${file.name} • ${formatSize(file.size)}`;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "ml-2 text-gray-400 hover:text-red-500";
+      removeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+      </svg>`;
+
+      removeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectedFiles.splice(index, 1);
+        renderFileList();
+        updateUIState();
+      });
+
+      li.appendChild(fileInfo);
+      li.appendChild(removeBtn);
+      fileList.appendChild(li);
+    });
+  }
+
+  function updateUIState() {
+    fileListContainer.classList.toggle("hidden", selectedFiles.length === 0);
+  }
+
+  function validateAndAddFiles(files) {
+    const validFiles = [];
+
+    Array.from(files).forEach((file) => {
+      const fileExt = file.name.split(".").pop().toLowerCase();
+      if (file.size > MAX_FILE_SIZE) {
+        showToast("error", `${file.name} exceeds the 10MB limit.`);
+        return;
+      }
+      if (!["pdf", "doc", "docx"].includes(fileExt)) {
+        showToast("error", `${file.name} is not a supported file type.`);
+        return;
+      }
+      validFiles.push(file);
+    });
+
+    const availableSlots = MAX_FILES - selectedFiles.length;
+    if (validFiles.length > availableSlots) {
+      showToast("warning", `Only ${availableSlots} more file(s) can be added.`);
+      validFiles.splice(availableSlots);
+    }
+
+    selectedFiles = [...selectedFiles, ...validFiles];
+    renderFileList();
+    updateUIState();
+  }
+
+  dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropZone.classList.add("border-blue-300", "bg-blue-50");
+  });
+
+  dropZone.addEventListener("dragleave", () => {
+    dropZone.classList.remove("border-blue-300", "bg-blue-50");
+  });
+
+  dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("border-blue-300", "bg-blue-50");
+    validateAndAddFiles(e.dataTransfer.files);
+  });
+
+  fileInput.addEventListener("click", (e) => e.stopPropagation());
+  fileInput.addEventListener("change", (e) => {
+    validateAndAddFiles(e.target.files);
+    fileInput.value = "";
+  });
+
+  selectMoreBtn.addEventListener("click", () => fileInput.click());
+
+  document.getElementById("cv-upload-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (selectedFiles.length === 0) {
+      showToast("error", "Please select at least one file.");
+      return;
+    }
+
+    const form = e.target;
+    const formData = new FormData();
+    selectedFiles.forEach((file) => {
+      formData.append("cv_file[]", file);
+    });
+
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    fetch(form.action, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrfToken },
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.message === "Files uploaded successfully") {
+          showToast("success", data.message);
+          selectedFiles = [];
+          renderFileList();
+          updateUIState();
+          form.reset();
+        } else {
+          showToast("error", data.error || "Upload failed.");
+        }
+      })
+      .catch(() => {
+        showToast("error", "Upload error.");
+      });
+  });
+
+  fileListWrapper.addEventListener("click", (e) => e.stopPropagation());
+</script>
