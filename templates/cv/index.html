@@ -33,7 +33,9 @@ CV Dashboard
                         <span class="inline-block align-middle ml-1">↓</span>
                     </th>
                     <th class="py-3 px-4 font-medium">Date Added</th>
-                    <th class="py-3 px-4"></th>
+                    <th class="py-3 px-4">
+                        Sync Status
+                    </th>
                 </tr>
             </thead>
             <tbody id="candidate-table-body" class="divide-y divide-gray-200">
@@ -45,6 +47,7 @@ CV Dashboard
             </tbody>
         </table>
     </div>
+    {% include "cv/pagination.html" %}
 </div>
 <script>
     const ws = new WebSocket("ws://localhost:8000/ws/notifications/");
@@ -63,16 +66,43 @@ CV Dashboard
     const searchInput = document.getElementById('candidate-search');
     const tableBody = document.getElementById('candidate-table-body');
 
+    // Scroll ke bawah jika ada query param page
+    function scrollToBottomIfPageParam() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('page')) {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    }
+
+    // Handler untuk AJAX pagination
+    function attachPaginationHandler() {
+        document.querySelectorAll('.pagination-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const url = this.getAttribute('href');
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(response => response.text())
+                    .then(html => {
+                        tableBody.innerHTML = html;
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    });
+            });
+        });
+    }
+
     searchInput.addEventListener('input', function () {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             const query = searchInput.value.trim();
-            fetch(`/cv/search/?q=${encodeURIComponent(query)}`)
+            fetch(`/cv/search/?q=${encodeURIComponent(query)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => response.text())
                 .then(html => {
                     tableBody.innerHTML = html;
                 });
         }, 300);
     });
+
+    // Jalankan scroll ke bawah jika page param ada saat load
+    scrollToBottomIfPageParam();
 </script>
 {% endblock sidebar_content %}

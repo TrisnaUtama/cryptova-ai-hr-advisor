@@ -1,26 +1,26 @@
 {% comment %} Overview Tab Component {% endcomment %}
 <div id="tab-overview" class="tab-content active">
-    <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {% include "./overview_card.html" with title="Total CVs" value=total_cvs subtitle=total_cvs_difference|add:" from yesterday" %}
         {% include "./overview_card.html" with title="Avg. Score" value=avg_score subtitle=avg_score_difference|add:" from last week" %}
         {% include "./overview_card.html" with title="High Scorers" value=high_scorers subtitle="Score > 90" %}
         {% include "./overview_card.html" with title="Processing Rate" value=processing_rate subtitle="Successfully processed" %}
     </div>
-    <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="bg-white rounded-lg p-6 shadow">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-lg p-4 sm:p-6 shadow">
             <h3 class="font-semibold mb-2">CV Processing</h3>
             <div>
                 <canvas id="cvProcessingChart" height="120"></canvas>
             </div>
         </div>
-        <div class="bg-white rounded-lg p-6 shadow">
+        <div class="bg-white rounded-lg p-4 sm:p-6 shadow">
             <h3 class="font-semibold mb-2">Average CV Score</h3>
             <div>
                 <canvas id="avgScoreChart" height="120"></canvas>
             </div>
         </div>
     </div>
-    <div class="bg-white rounded-lg p-6 shadow">
+    <div class="bg-white rounded-lg p-4 sm:p-6 shadow">
         <h3 class="font-semibold mb-2">CV Processing by Day</h3>
         <div>
             <canvas id="cvByDayChart" height="120"></canvas>
