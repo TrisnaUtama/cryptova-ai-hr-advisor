@@ -19,8 +19,6 @@ logger = logging.getLogger(__name__)
 
 class CvDashboardView(LoginCheckMixin, View):
     def get(self, request):
-        from .models import CV
-
         candidates_qs = CV.objects.all().order_by("-created_at")
         paginator = Paginator(candidates_qs, 7)
         page_number = request.GET.get("page", 1)
@@ -89,9 +87,6 @@ class CvDashboardView(LoginCheckMixin, View):
 
 @require_GET
 def search_candidates(request):
-    from .models import CV
-    from django.core.paginator import Paginator
-
     q = request.GET.get("q", "").strip().lower()
     page_number = request.GET.get("page", 1)
     qs = CV.objects.all()
