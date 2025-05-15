@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
-from django.views import View
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.shortcuts import redirect, render
+from django.views import View
+
 from core.utils import LoginCheckMixin
 
 
@@ -27,10 +28,7 @@ class SignInView(View):
 
         login(request, authenticate_user)
         return redirect("dashboard")
-
-
 # End of Login View
-
 
 # Register Views
 class SignUpView(View):
@@ -63,10 +61,7 @@ class SignUpView(View):
 
         messages.success(request, "Successfuly Sign Up continue to Sign In.")
         return redirect("sign-in")
-
-
 # End of Register View
-
 
 # Sign Out View
 class SignOut(LoginCheckMixin, View):

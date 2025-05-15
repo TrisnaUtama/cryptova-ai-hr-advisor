@@ -1,15 +1,15 @@
 {% comment %} Top Candidates Tab Component {% endcomment %}
 <div id="tab-candidates" class="tab-content">
-    <div class="bg-white rounded-lg p-8 shadow mb-6">
+    <div class="bg-white rounded-lg p-4 sm:p-8 shadow mb-6 w-full max-w-full overflow-x-auto">
         <h2 class="text-xl font-bold mb-6">Top Scoring Candidates</h2>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-200 text-gray-500 text-left">
                         <th class="py-3 px-4 font-medium">Name</th>
-                        <th class="py-3 px-4 font-medium">Email</th>
+                        <th class="py-3 px-4 font-medium whitespace-nowrap hidden sm:table-cell">Email</th>
                         <th class="py-3 px-4 font-medium">Score</th>
-                        <th class="py-3 px-4 font-medium">Key Skills</th>
+                        <th class="py-3 px-4 font-medium text-ellipsis whitespace-nowrap hidden sm:table-cell">Key Skills</th>
                         <th class="py-3 px-4 font-medium text-center">Actions</th>
                     </tr>
                 </thead>
@@ -17,13 +17,17 @@
                     {% for candidate in top_candidates %}
                         <tr>
                             <td class="py-3 px-4 font-medium text-gray-900">{{ candidate.name }}</td>
-                            <td class="py-3 px-4 text-gray-700">{{ candidate.email }}</td>
+                            <td class="py-3 px-4 text-gray-700 whitespace-nowrap text-ellipsis overflow-hidden max-w-[120px] hidden sm:table-cell">
+                                {{ candidate.email }}
+                            </td>
                             <td class="py-3 px-4">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if candidate.score >= 90 %}bg-green-100 text-green-800 {% elif candidate.score >= 80 %}bg-blue-100 text-blue-800 {% else %}bg-yellow-100 text-yellow-800{% endif %}">
                                     {{ candidate.score }}
                                 </span>
                             </td>
-                            <td class="py-3 px-4 text-gray-700">{{ candidate.skills }}</td>
+                            <td class="py-3 px-4 text-gray-700 text-ellipsis whitespace-nowrap overflow-hidden max-w-[120px] hidden sm:table-cell">
+                                {{ candidate.skills }}
+                            </td>
                             <td class="py-3 px-4 text-center">
                                 <button class="p-1 rounded-full hover:bg-gray-100" title="View">
                                     <svg class="w-5 h-5 text-gray-500"
@@ -45,7 +49,7 @@
             </table>
         </div>
     </div>
-    <div class="bg-white rounded-lg p-8 shadow">
+    <div class="bg-white rounded-lg p-4 sm:p-8 shadow w-full max-w-full overflow-x-auto">
         <h2 class="text-lg font-bold mb-4">Score Distribution</h2>
         <div>
             <canvas id="scoreDistChart" height="180"></canvas>

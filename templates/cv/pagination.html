@@ -1,0 +1,34 @@
+{% if page_obj and page_obj.paginator.num_pages > 1 %}
+    <div class="flex justify-center mt-4">
+        <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}"
+                   class="pagination-link px-3 py-1 border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 rounded-l-md">
+                    <i class="fa fa-arrow-left text-sm"></i>
+                </a>
+            {% else %}
+                <span class="px-3 py-1 border border-gray-200 bg-gray-100 text-gray-400 rounded-l-md">
+                    <i class="fa fa-arrow-left text-sm"></i>
+                </span>
+            {% endif %}
+            {% for i in page_obj.paginator.page_range %}
+                {% if page_obj.number == i %}
+                    <span class="px-3 py-1 border border-gray-500 bg-gray-100 text-gray-700 font-bold">{{ i }}</span>
+                {% else %}
+                    <a href="?page={{ i }}"
+                       class="pagination-link px-3 py-1 border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}"
+                   class="pagination-link px-3 py-1 border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 rounded-r-md">
+                    <i class="fa fa-arrow-right text-sm"></i>
+                </a>
+            {% else %}
+                <span class="px-3 py-1 border border-gray-200 bg-gray-100 text-gray-400 rounded-r-md">
+                    <i class="fa fa-arrow-right text-sm"></i>
+                </span>
+            {% endif %}
+        </nav>
+    </div>
+{% endif %}

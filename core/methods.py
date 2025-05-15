@@ -20,5 +20,5 @@ def send_notification(notification_type, content, document_id):
                 "type": notification_type,
                 "document_id": document_id,
             },
-        }
+        },
     )
