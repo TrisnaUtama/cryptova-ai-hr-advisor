@@ -48,33 +48,25 @@ class CvDashboardView(LoginCheckMixin, View):
             if not files:
                 messages.error(request, "No files were uploaded.")
                 return JsonResponse({"error": "No files were uploaded."}, status=400)
-
             user = request.user
             file_urls = []
-
             for uploaded_file in files:
                 if not uploaded_file.name.lower().endswith((".pdf", ".doc", ".docx")):
                     messages.error(request, f"Unsupported file type {uploaded_file.name}")
                     raise ValidationError(f"Unsupported file type: {uploaded_file.name}")
-
                 cv = CV.objects.create(
                     user=user,
                     file=uploaded_file,
                     file_name=uploaded_file.name,
                 )
-
                 file_urls.append(cv.file.url)
-
             messages.success(request, "Files uploaded successfully")
             return JsonResponse(
                 {"message": "Files uploaded successfully", "file_urls": file_urls},
                 status=200
             )
-
         except ValidationError as ve:
             logger.warning(f"Validation error: {ve}")
-            return JsonResponse({"error": str(ve)}, status=400)
-
         except Exception as e:
             logger.exception("Unexpected error during CV upload")
             return JsonResponse({
