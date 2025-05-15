@@ -1,6 +1,6 @@
 {% comment %} Scoring Weights Tab Component {% endcomment %}
 <div id="tab-scoring" class="tab-content">
-    <div class="bg-white rounded-lg p-8 shadow mb-6">
+    <div class="bg-white rounded-lg p-4 sm:p-8 shadow mb-6 w-full max-w-full overflow-x-auto">
         <h2 class="text-xl font-bold mb-6">Scoring Weights Configuration</h2>
         <div class="space-y-6">
             <div>
@@ -67,18 +67,18 @@
             </div>
         </div>
     </div>
-    <div class="bg-blue-50 rounded-lg p-6 shadow">
+    <div class="bg-blue-50 rounded-lg p-4 sm:p-6 shadow w-full max-w-full overflow-x-auto">
         <h2 class="text-lg font-bold mb-2">Scoring Formula</h2>
-        <pre class="bg-blue-50 text-gray-800 text-sm p-0 m-0 border-0 shadow-none">score = round(
-      100 * (
+        <pre class="bg-blue-50 text-gray-800 text-sm p-0 m-0 border-0 shadow-none whitespace-pre-line md:whitespace-pre break-words">score = round(
+    100 * (
         0.3 * min(years_exp / 15, 1.0) +
         0.25 * (matched_skills / 20) +
         0.15 * min(achievements / 10, 1.0) +
         0.1 * min(certificates / 5, 1.0) +
         0.2 * (gpa / 4.0)
-      ),
-      1
-    )
-    </pre>
+    ),
+    1
+)
+        </pre>
     </div>
 </div>
