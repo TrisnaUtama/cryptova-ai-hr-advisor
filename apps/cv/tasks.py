@@ -1,18 +1,31 @@
-from huey.contrib.djhuey import task
 import logging
 
-from .models import CV, Skill, Education, WorkExperience, Achievement, Language, SYNC_STATUS_PROCESSING, SYNC_STATUS_COMPLETED, SYNC_STATUS_FAILED
-from core.methods import send_notification
+from huey.contrib.djhuey import task
 
 from core.ai.mistral import mistral
-from core.ai.prompt_manager import PromptManager, CVBase
+from core.ai.prompt_manager import CVBase, PromptManager
+from core.methods import send_notification
+
+from .models import (
+    CV,
+    SYNC_STATUS_COMPLETED,
+    SYNC_STATUS_FAILED,
+    SYNC_STATUS_PROCESSING,
+    Achievement,
+    Education,
+    Language,
+    Skill,
+    WorkExperience,
+)
 
 logging.basicConfig(level=logging.INFO)
+
 
 def clean_null_bytes(text):
     if text is None:
         return None
-    return text.replace('\x00', '')
+    return text.replace("\x00", "")
+
 
 @task()
 def process_cv(document: CV):
@@ -88,7 +101,7 @@ def process_cv(document: CV):
             skill_score=cv_data.get("skill_score"),
             sync_status=SYNC_STATUS_COMPLETED,
         )
-        
+
         logging.info(f"Extracted CV: {cv_data}")
         # update the skills, education, and work experience
         for skill in cv_data.get("skills"):
@@ -97,7 +110,7 @@ def process_cv(document: CV):
                 skill=clean_null_bytes(skill.get("skill")),
                 proficiency=clean_null_bytes(skill.get("proficiency")),
             )
-            
+
         for education in cv_data.get("education"):
             Education.objects.create(
                 cv=document,
@@ -131,7 +144,9 @@ def process_cv(document: CV):
 
     except Exception as e:
         logging.error(f"Error processing CV: {e}")
-        CV.objects.filter(id=document.id).update(sync_error=e, sync_status=SYNC_STATUS_FAILED)
+        CV.objects.filter(id=document.id).update(
+            sync_error=e, sync_status=SYNC_STATUS_FAILED
+        )
         send_notification("notification", "CV processing failed", filename)
 
     pass

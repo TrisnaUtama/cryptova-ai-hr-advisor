@@ -28,7 +28,10 @@ class SignInView(View):
 
         login(request, authenticate_user)
         return redirect("dashboard")
+
+
 # End of Login View
+
 
 # Register Views
 class SignUpView(View):
@@ -61,7 +64,10 @@ class SignUpView(View):
 
         messages.success(request, "Successfuly Sign Up continue to Sign In.")
         return redirect("sign-in")
+
+
 # End of Register View
+
 
 # Sign Out View
 class SignOut(LoginCheckMixin, View):

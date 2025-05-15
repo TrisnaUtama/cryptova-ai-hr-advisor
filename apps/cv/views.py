@@ -1,19 +1,19 @@
+import logging
+
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
+from django.db import models
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views import View
 from django.views.decorators.http import require_GET
-from django.db import models
-from django.core.paginator import Paginator
 
 from core.utils import LoginCheckMixin
 
-from django.http import HttpResponse, JsonResponse
-from django.core.exceptions import ValidationError
-from django.contrib import messages
 from .models import CV
-import logging
 from .tasks import process_cv
-
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +29,18 @@ class CvDashboardView(LoginCheckMixin, View):
             score = c.overall_score
             if c.overall_score is None:
                 score = 0
-            candidates.append({
-                "candidate_name": c.candidate_name,
-                "candidate_email": c.candidate_email,
-                "overall_score": score,
-                "score": score,  # jika ingin score lain, ganti field
-                "sync_status": c.sync_status,
-                "created_at": c.created_at.strftime("%Y-%m-%d") if c.created_at else "",
-            })
+            candidates.append(
+                {
+                    "candidate_name": c.candidate_name,
+                    "candidate_email": c.candidate_email,
+                    "overall_score": score,
+                    "score": score,  # jika ingin score lain, ganti field
+                    "sync_status": c.sync_status,
+                    "created_at": (
+                        c.created_at.strftime("%Y-%m-%d") if c.created_at else ""
+                    ),
+                }
+            )
         return render(
             request, "cv/index.html", {"candidates": candidates, "page_obj": page_obj}
         )
