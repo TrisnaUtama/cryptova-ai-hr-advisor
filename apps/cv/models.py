@@ -8,11 +8,13 @@ from core.models import BaseModel
 SYNC_STATUS_PENDING = "pending"
 SYNC_STATUS_PROCESSING = "processing"
 SYNC_STATUS_COMPLETED = "completed"
+SYNC_STATUS_FAILED = "failed"
 
 SYNC_STATUS_CHOICES = (
     (SYNC_STATUS_PENDING, "Pending"),
     (SYNC_STATUS_PROCESSING, "Processing"),
     (SYNC_STATUS_COMPLETED, "Completed"),
+    (SYNC_STATUS_FAILED, "Failed"),
 )
 
 
@@ -38,6 +40,7 @@ class CV(BaseModel):
     sync_status = models.CharField(
         max_length=20, choices=SYNC_STATUS_CHOICES, default=SYNC_STATUS_PENDING
     )
+    sync_error = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "cvs"

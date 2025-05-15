@@ -1,40 +1,46 @@
+import logging
+
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
+from django.db import models
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views import View
 from django.views.decorators.http import require_GET
-from django.db import models
-from django.core.paginator import Paginator
 
 from core.utils import LoginCheckMixin
 
-from django.http import HttpResponse, JsonResponse
-from django.core.exceptions import ValidationError
-from django.contrib import messages
 from .models import CV
-import logging
-
+from .tasks import process_cv
 
 logger = logging.getLogger(__name__)
 
 
 class CvDashboardView(LoginCheckMixin, View):
     def get(self, request):
-        from .models import CV
-
         candidates_qs = CV.objects.all().order_by("-created_at")
         paginator = Paginator(candidates_qs, 7)
         page_number = request.GET.get("page", 1)
         page_obj = paginator.get_page(page_number)
-        candidates = [
-            {
-                "candidate_name": c.candidate_name,
-                "candidate_email": c.candidate_email,
-                "overall_score": c.overall_score,
-                "score": c.overall_score,  # jika ingin score lain, ganti field
-                "created_at": c.created_at.strftime("%Y-%m-%d") if c.created_at else "",
-            }
-            for c in page_obj
-        ]
+        candidates = []
+        for c in page_obj:
+            score = c.overall_score
+            if c.overall_score is None:
+                score = 0
+            candidates.append(
+                {
+                    "candidate_name": c.candidate_name,
+                    "candidate_email": c.candidate_email,
+                    "overall_score": score,
+                    "score": score,  # jika ingin score lain, ganti field
+                    "sync_status": c.sync_status,
+                    "created_at": (
+                        c.created_at.strftime("%Y-%m-%d") if c.created_at else ""
+                    ),
+                }
+            )
         return render(
             request, "cv/index.html", {"candidates": candidates, "page_obj": page_obj}
         )
@@ -63,6 +69,7 @@ class CvDashboardView(LoginCheckMixin, View):
                     file=uploaded_file,
                     file_name=uploaded_file.name,
                 )
+                process_cv(document=cv)
 
                 file_urls.append(cv.file.url)
 
@@ -89,9 +96,6 @@ class CvDashboardView(LoginCheckMixin, View):
 
 @require_GET
 def search_candidates(request):
-    from .models import CV
-    from django.core.paginator import Paginator
-
     q = request.GET.get("q", "").strip().lower()
     page_number = request.GET.get("page", 1)
     qs = CV.objects.all()

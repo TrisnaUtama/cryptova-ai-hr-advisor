@@ -7,13 +7,14 @@ from core.utils import LoginCheckMixin
 class DashboardView(LoginCheckMixin, View):
     def get(self, request):
         from apps.cv.models import CV
+
         from .models import (
-            CvUploadedPerDay,
             CvProcessedPerDay,
-            CvUploadedPerWeek,
             CvProcessedPerWeek,
             CvScoreAvgPerWeek,
             CvScoreDistribution,
+            CvUploadedPerDay,
+            CvUploadedPerWeek,
         )
 
         # Total CVs

@@ -29,3 +29,4 @@ yarn.lock
 **/bin/     
 
 .DS_Store
+media/*

@@ -1,9 +1,10 @@
 from django.db import migrations
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0002_rename_answer_chat_message_remove_chat_question_and_more'),
+        ("chat", "0002_rename_answer_chat_message_remove_chat_question_and_more"),
     ]
 
     operations = [
@@ -21,7 +22,7 @@ class Migration(migrations.Migration):
             ORDER BY
                 day DESC;
             """,
-            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_uploaded_per_day;"
+            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_uploaded_per_day;",
         ),
         migrations.RunSQL(
             """
@@ -38,7 +39,7 @@ class Migration(migrations.Migration):
             ORDER BY
                 day DESC;
             """,
-            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_processed_per_day;"
+            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_processed_per_day;",
         ),
         # 2. Total uploaded & processed cvs per week
         migrations.RunSQL(
@@ -54,7 +55,7 @@ class Migration(migrations.Migration):
             ORDER BY
                 week DESC;
             """,
-            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_uploaded_per_week;"
+            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_uploaded_per_week;",
         ),
         migrations.RunSQL(
             """
@@ -71,7 +72,7 @@ class Migration(migrations.Migration):
             ORDER BY
                 week DESC;
             """,
-            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_processed_per_week;"
+            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_processed_per_week;",
         ),
         # 3. Average of cv score per week
         migrations.RunSQL(
@@ -89,7 +90,7 @@ class Migration(migrations.Migration):
             ORDER BY
                 week DESC;
             """,
-            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_score_avg_per_week;"
+            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_score_avg_per_week;",
         ),
         # 4. Score distribution (bucket 0-20, 21-40, dst)
         migrations.RunSQL(
@@ -107,6 +108,6 @@ class Migration(migrations.Migration):
             ORDER BY
                 score_bucket;
             """,
-            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_score_distribution;"
+            reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_score_distribution;",
         ),
     ]
