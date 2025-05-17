@@ -5,14 +5,14 @@ from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import models
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.views import View
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from core.utils import LoginCheckMixin
 
-from .models import CV
+from .models import CV, SYNC_STATUS_PROCESSING
 from .tasks import process_cv
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,7 @@ class CvDashboardView(LoginCheckMixin, View):
                 score = 0
             candidates.append(
                 {
+                    "id": c.id,
                     "candidate_name": c.candidate_name,
                     "candidate_email": c.candidate_email,
                     "overall_score": score,
@@ -94,6 +95,22 @@ class CvDashboardView(LoginCheckMixin, View):
             )
 
 
+class CVDetail(View):
+    def get(self, request, id):
+        cv = get_object_or_404(CV, id=id)
+
+        scores = [
+            {"label": "Overall", "value": cv.overall_score},
+            {"label": "Experience", "value": cv.experience_score},
+            {"label": "Skills", "value": cv.skill_score},
+            {"label": "Achievements", "value": cv.achievement_score},
+        ]
+
+        return render(request, "cv/detail_candidate.html", context={
+            "cv": cv,
+            "scores": scores
+        })
+
 @require_GET
 def search_candidates(request):
     q = request.GET.get("q", "").strip().lower()
@@ -121,3 +138,29 @@ def search_candidates(request):
         {"candidates": candidates, "page_obj": page_obj},
     )
     return HttpResponse(html)
+
+@require_POST
+def reprocess_cv(request, id):
+    cv = get_object_or_404(CV, id=id)
+
+    # Delete previously extracted data
+    cv.skills.all().delete()
+    cv.educations.all().delete()
+    cv.work_experiences.all().delete()
+    cv.achievements.all().delete()
+    cv.languages.all().delete()
+
+    # Reset fields
+    cv.raw_output = None
+    cv.overall_score = None
+    cv.experience_score = None
+    cv.achievement_score = None
+    cv.skill_score = None
+    cv.sync_status = SYNC_STATUS_PROCESSING
+    cv.sync_error = None
+    cv.save()
+
+    # Trigger async reprocessing
+    process_cv(document=cv)
+
+    return JsonResponse({"status": "reprocessing started"})
