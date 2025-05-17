@@ -211,14 +211,10 @@
       .then((res) => res.json())
       .then((data) => {
         if (data.message === "Files uploaded successfully") {
-          showToast("success", data.message);
           selectedFiles = [];
           renderFileList();
           updateUIState();
           form.reset();
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
         } else {
           showToast("error", data.error || "Upload failed.");
         }
