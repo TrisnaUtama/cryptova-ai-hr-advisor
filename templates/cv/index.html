@@ -1,12 +1,17 @@
 {% extends "base_sidebar.html" %}
-{% block title %}
-CV Dashboard
-{% endblock title %}
+{% block title %}CV Dashboard{% endblock title %}
+
 {% block sidebar_content %}
 <div class="w-full flex flex-col space-y-4">
     <h1 class="text-2xl font-bold text-gray-900 mb-4">CV Management</h1>
+
+    <!-- Notification container -->
+    <div id="ws-notification"
+         class="hidden fixed top-4 right-4 bg-blue-100 text-blue-900 px-4 py-2 rounded shadow-md z-50"></div>
+
     <!-- Upload Box -->
     <div>{% include "./upload_box.html" %}</div>
+
     <!-- Search and Export -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 md:space-x-4">
         <div>
@@ -21,6 +26,7 @@ CV Dashboard
             Export CSV
         </button>
     </div>
+
     <!-- Candidate Table -->
     <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
         <table class="min-w-full text-sm">
@@ -39,34 +45,81 @@ CV Dashboard
                 </tr>
             </thead>
             <tbody id="candidate-table-body" class="divide-y divide-gray-200">
-                {% with candidates=candidates %}
                 {% for candidate in candidates %}
-                {% include "./candidate_row.html" with candidate=candidate %}
+                <tr data-document-id="{{ candidate.id }}">
+                    {% include "./candidate_row.html" with candidate=candidate %}
+                </tr>
                 {% endfor %}
-                {% endwith %}
             </tbody>
         </table>
     </div>
+
     {% include "cv/pagination.html" %}
 </div>
+
 <script>
+    const wsNotification = document.getElementById("ws-notification");
     const ws = new WebSocket("ws://localhost:8000/ws/notifications/");
-    ws.onmessage = function (event) {
-        console.log(event.data);
+
+    ws.onopen = () => console.log("WebSocket connected");
+    ws.onclose = () => console.log("WebSocket disconnected");
+
+let notificationQueue = [];
+let isNotificationShowing = false;
+
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    const message = data.message;
+    notificationQueue.push(message);
+    if (!isNotificationShowing) {
+        processQueue();
     }
-    ws.onopen = function (event) {
-        console.log("Connected to the server");
+};
+
+function showNotification(message) {
+    wsNotification.textContent = message.content;
+    wsNotification.classList.remove("hidden");
+
+    // style toast notification
+    wsNotification.style.backgroundColor = "#e0f2fe"; 
+    wsNotification.style.color = "#0369a1";
+
+    // Highlight candidate row if numeric ID extracted
+    if (message.document_id) {
+        const match = message.document_id.match(/cv\/(\d+)\//);
+        const numericId = match ? match[1] : null;
+        if (numericId) {
+            const row = document.querySelector(`[data-document-id='${numericId}']`);
+            if (row) {
+                row.classList.add("bg-yellow-100");
+                setTimeout(() => row.classList.remove("bg-yellow-100"), 4000);
+            }
+        }
     }
-    ws.onclose = function (event) {
-        console.log("Disconnected from the server");
+}
+
+function processQueue() {
+    if (notificationQueue.length === 0) {
+        isNotificationShowing = false;
+        wsNotification.classList.add("hidden");
+        return;
     }
 
-    // Debounced real-time search
+    isNotificationShowing = true;
+    const message = notificationQueue.shift();
+    showNotification(message);
+
+    setTimeout(() => {
+        wsNotification.classList.add("hidden");
+        processQueue();
+    }, 4000);
+}
+
+    // --- Search & Pagination ---
     let searchTimeout = null;
     const searchInput = document.getElementById('candidate-search');
     const tableBody = document.getElementById('candidate-table-body');
 
-    // Scroll ke bawah jika ada query param page
     function scrollToBottomIfPageParam() {
         const params = new URLSearchParams(window.location.search);
         if (params.has('page')) {
@@ -74,7 +127,6 @@ CV Dashboard
         }
     }
 
-    // Handler untuk AJAX pagination
     function attachPaginationHandler() {
         document.querySelectorAll('.pagination-link').forEach(link => {
             link.addEventListener('click', function (e) {
@@ -102,7 +154,6 @@ CV Dashboard
         }, 300);
     });
 
-    // Jalankan scroll ke bawah jika page param ada saat load
     scrollToBottomIfPageParam();
 </script>
 {% endblock sidebar_content %}

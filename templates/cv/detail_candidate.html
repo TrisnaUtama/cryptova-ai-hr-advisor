@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Detail CV{% endblock title %}
+{% block content %}
+      <!-- Back Button -->
+      <div class="bg-gray-50 min-h-screen w-full">
+        <div class="bg-white border-b border-gray-200 p-6 py-4 flex items-center justify-between">
+          <a href="/cv/" class="font-medium hover:text-gray-500">
+            Back 
+          </a>
+        </div>
+        
+        <div class="p-6">
+          <!-- Basic Information -->
+          <div class="max-w-4xl mx-auto mt-6 mb-6">
+        <div class="bg-white rounded-lg shadow overflow-hidden border-gray-100">
+          <!-- Header Section -->
+          <div class="p-6 pb-4 flex justify-between items-start">
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800">{{ cv.candidate_name|default:"Not provided" }}</h1>
+              <p class="text-gray-600">{{ cv.candidate_title|default:"Not provided" }}</p>
+            </div>
+            
+            <!-- Sync Status Badge -->
+            {% if cv.sync_status %}
+              <span class="inline-flex px-2 border rounded-md py-1 font-semibold
+                {% if cv.sync_status == 'pending' %}
+                    bg-gray-100 text-gray-800 border-gray-300
+                {% elif cv.sync_status == 'processing' %}
+                    bg-yellow-100 text-yellow-800 border-yellow-300
+                {% elif cv.sync_status == 'completed' %}
+                    bg-green-100 text-green-800 border-green-300
+                {% elif cv.sync_status == 'failed' %}
+                    bg-red-100 text-red-800 border-red-300
+                {% endif %}
+            ">
+            {{ cv.sync_status|upper }}
+            </span>
+            {% endif %}
+          </div>
+          
+          <!-- Content Section -->
+          <div class="grid grid-cols-1 md:grid-cols-2 border-t border-gray-200">
+            <!-- Left Column - Contact Information -->
+            <div class="p-6 border-b md:border-b-0 md:border-r border-gray-200">
+              <h2 class="text-lg font-semibold mb-4 text-gray-800">Contact Information</h2>
+              
+              <div class="space-y-3">
+                <div>
+                  <p class="text-gray-500">Email</p>
+                  {% if cv.candidate_email %}
+                    <a href="mailto:{{ cv.candidate_email }}" class="text-blue-600 hover:underline">
+                      {{ cv.candidate_email }}
+                    </a>
+                  {% else %}
+                    <span class="text-gray-400 italic">Not provided</span>
+                  {% endif %}
+                </div>
+                
+                <div>
+                  <p class="text-gray-500">Phone</p>
+                  <p class="text-gray-800">{{ cv.candidate_phone|default:"Not provided" }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column - Scores -->
+            <div class="p-6">
+              <h2 class="text-lg font-semibold mb-4 text-gray-800">Scores</h2>
+              
+              <div class="space-y-4">
+                {% for score in scores %}
+                  <div>
+                    <div class="flex justify-between mb-1">
+                      <span class="text-gray-800">{{ score.label }}</span>
+                      <span class="text-gray-800 font-medium">{% if score.value != None %}{{ score.value }}%{% else %}Not provided{% endif %}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="bg-blue-600 h-2 rounded-full transition-all duration-500 ease-in-out"
+                          style="width: {% if score.value != None %}{{ score.value }}%{% else %}0%{% endif %};">
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Summary Section -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden border-gray-100 mb-6 p-4">
+        <div class="border-b border-gray-200 px-6 py-4">
+          <h2 class="text-lg font-semibold text-gray-800">Summary</h2>
+        </div>
+        <div class="px-6 py-4 text-gray-700">
+          <p>{{ cv.description|default:"No summary provided." }}</p>
+        </div>
+      </div>
+      
+      <!-- Work Experience Section -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden border-gray-100 mb-6 p-4">
+        <div class="border-b border-gray-200 px-6 py-4">
+          <h2 class="text-lg font-semibold text-gray-800">Work Experience</h2>
+        </div>
+        
+        {% if cv.work_experiences.all %}
+          {% for experience in cv.work_experiences.all %}
+            <div class="px-6 py-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-semibold text-gray-800">{{ experience.position }}</h3>
+                  <p class="text-gray-600">{{ experience.company }}</p>
+                </div>
+                <span class="text-sm text-gray-500">{{ experience.duration }}</span>
+              </div>
+              <p class="mt-2 text-gray-700">{{ experience.description }}</p>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="px-6 py-4 text-gray-500 italic">No work experience listed.</div>
+        {% endif %}
+      </div>
+      
+      <!-- Education Section -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden border-gray-100 mb-6 p-4">
+        <div class="border-b border-gray-200 px-6 py-4">
+          <h2 class="text-lg font-semibold text-gray-800">Education</h2>
+        </div>
+        {% if cv.educations.all %}
+          {% for edu in cv.educations.all %}
+            <div class="px-6 py-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-semibold text-gray-800">{{ edu.degree }}</h3>
+                  <p class="text-gray-600">{{ edu.institution }}</p>
+                  {% if edu.gpa %}<p class="text-gray-600 text-sm">GPA: {{ edu.gpa }}</p>{% endif %}
+                </div>
+                <span class="text-sm text-gray-500">{{ edu.year }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="px-6 py-4 text-gray-500 italic">No education information provided.</div>
+        {% endif %}
+      </div>
+      
+      <!-- Skills and Languages Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+        <!-- Skills -->
+        <div class="bg-white rounded-lg shadow border-gray-100 p-4">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-semibold text-gray-800"> Skills</h2>
+          </div>
+          <div class="p-4 max-h-64 overflow-y-auto">
+            {% if cv.skills.all %}
+              <div class="flex flex-wrap gap-2">
+                {% for skill in cv.skills.all %}
+                  <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-50 text-blue-800">
+                    {{ skill.skill }}
+                    {% if skill.proficiency %}
+                      <span class="ml-1 text-xs text-blue-500">({{ skill.proficiency }})</span>
+                    {% endif %}
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-gray-500 italic">No skills listed.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="bg-white rounded-lg shadow  border-gray-100 p-4">
+          <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="text-lg font-semibold text-gray-800">Languages</h2>
+          </div>
+          <div class="p-4 max-h-64 overflow-y-auto">
+            {% if cv.languages.all %}
+              <div class="space-y-2">
+                {% for language in cv.languages.all %}
+                  <div class="flex justify-between items-center">
+                    <span class="text-gray-800">{{ language.language }}</span>
+                    <span class="text-sm text-gray-600">{{ language.proficiency }}</span>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-gray-500 italic">No languages listed.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Achievements Section -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden border-gray-100 mb-6 p-4">
+        <div class="border-b border-gray-200 px-6 py-4">
+          <h2 class="text-lg font-semibold text-gray-800">Achievements</h2>
+        </div>
+        
+        {% if cv.achievements.all %}
+          {% for achievement in cv.achievements.all %}
+            <div class="px-6 py-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-semibold text-gray-800">{{ achievement.title }}</h3>
+                  {% if achievement.publisher %}
+                    <p class="text-gray-600">{{ achievement.publisher }}</p>
+                  {% endif %}
+                </div>
+                {% if achievement.year %}
+                  <span class="text-sm text-gray-500">{{ achievement.year }}</span>
+                {% endif %}
+              </div>
+              <p class="mt-2 text-gray-700">{{ achievement.description }}</p>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="px-6 py-4 text-gray-500 italic">No achievements listed.</div>
+        {% endif %}
+      </div>
+      
+      <!-- Created/Updated Timestamp -->
+      <div class="text-xs text-gray-500 mt-4">
+        <p>Created: {{ cv.created_at|date:"m/d/Y, g:i:s A" }}</p>
+        <p>Last updated: {{ cv.updated_at|date:"m/d/Y, g:i:s A" }}</p>
+      </div>
+    </div>
+</div>
+{% endblock content %}

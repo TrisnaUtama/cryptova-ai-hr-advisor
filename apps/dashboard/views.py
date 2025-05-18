@@ -142,3 +142,4 @@ class DashboardView(LoginCheckMixin, View):
             "week_labels": week_labels,
         }
         return render(request, "dashboard/index.html", context)
+    
