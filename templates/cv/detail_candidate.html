@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "base_sidebar.html" %}
 {% block title %}Detail CV{% endblock title %}
-{% block content %}
+{% block sidebar_content %}
       <!-- Back Button -->
       <div class="bg-gray-50 min-h-screen w-full">
-        <div class="bg-white border-b border-gray-200 p-6 py-4 flex items-center justify-between">
+        <div class="p-6 py-4 flex items-center justify-between">
           <a href="/cv/" class="font-medium hover:text-gray-500">
-            Back 
+            &larr; Back
           </a>
         </div>
         
@@ -144,17 +144,17 @@
       </div>
       
       <!-- Skills and Languages Section -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 items-start">
         <!-- Skills -->
         <div class="bg-white rounded-lg shadow border-gray-100 p-4">
           <div class="border-b border-gray-200 px-6 py-4">
-            <h2 class="text-lg font-semibold text-gray-800"> Skills</h2>
+            <h2 class="text-lg font-semibold text-gray-800">Skills</h2>
           </div>
           <div class="p-4 max-h-64 overflow-y-auto">
             {% if cv.skills.all %}
-              <div class="flex flex-wrap gap-2">
+              <div class="gap-2">
                 {% for skill in cv.skills.all %}
-                  <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-50 text-blue-800">
+                  <span class="mt-2 inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-50 text-blue-800">
                     {{ skill.skill }}
                     {% if skill.proficiency %}
                       <span class="ml-1 text-xs text-blue-500">({{ skill.proficiency }})</span>
@@ -169,11 +169,11 @@
         </div>
 
         <!-- Languages -->
-        <div class="bg-white rounded-lg shadow  border-gray-100 p-4">
+        <div class="bg-white rounded-lg shadow border-gray-100 p-4">
           <div class="border-b border-gray-200 px-6 py-4">
             <h2 class="text-lg font-semibold text-gray-800">Languages</h2>
           </div>
-          <div class="p-4 max-h-64 overflow-y-auto">
+          <div class="p-4">
             {% if cv.languages.all %}
               <div class="space-y-2">
                 {% for language in cv.languages.all %}
@@ -188,7 +188,8 @@
             {% endif %}
           </div>
         </div>
-      </div>
+      </div>  
+
       
       <!-- Achievements Section -->
       <div class="bg-white rounded-lg shadow-sm overflow-hidden border-gray-100 mb-6 p-4">
@@ -225,4 +226,4 @@
       </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock sidebar_content %}
