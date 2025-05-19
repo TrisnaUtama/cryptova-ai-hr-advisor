@@ -1,11 +1,10 @@
-from django.shortcuts import redirect, render
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-
 from core.utils import LoginCheckMixin
-
-from .models import Chat, ChatSession
+from .models import ChatSession
 
 
 class ChatHistoryView(LoginCheckMixin, View):
@@ -22,12 +21,10 @@ class ChatRoomView(LoginCheckMixin, View):
     def get(self, request):
         session_id = request.GET.get("session_id")
         chats = []
-        show_greeting = True
         if session_id:
             try:
                 session = ChatSession.objects.get(id=session_id, user=request.user)
                 chats = list(session.chats.order_by("created_at"))
-                show_greeting = False
             except ChatSession.DoesNotExist:
                 session = None
         else:
@@ -37,45 +34,14 @@ class ChatRoomView(LoginCheckMixin, View):
             "chat/room.html",
             {
                 "chats": chats,
-                "show_greeting": show_greeting,
                 "session_id": session_id or "",
             },
         )
 
-    def post(self, request):
-        message = request.POST.get("question")
-        session_id = request.POST.get("session_id")
-        chats = []
-        session = None
-        is_new_session = False
-        if message:
-            if session_id:
-                try:
-                    session = ChatSession.objects.get(id=session_id, user=request.user)
-                except ChatSession.DoesNotExist:
-                    session = ChatSession.objects.create(user=request.user)
-                    is_new_session = True
-            else:
-                session = ChatSession.objects.create(user=request.user)
-                is_new_session = True
-            Chat.objects.create(
-                session=session, user=request.user, role="user", message=message
-            )
-            Chat.objects.create(
-                session=session,
-                user=request.user,
-                role="assistant",
-                message="Hello! I'm CV-Insight-AI, your assistant for analyzing candidate CVs. How can I help you today?",
-            )
-            chats = list(session.chats.order_by("created_at"))
-            if is_new_session:
-                return redirect(f"/chat?session_id={session.id}")
-        return render(
-            request,
-            "chat/room.html",
-            {
-                "chats": chats,
-                "show_greeting": False,
-                "session_id": session.id if session else "",
-            },
-        )
+
+@csrf_exempt
+def create_chat_session(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        session = ChatSession.objects.create(user=request.user)
+        return JsonResponse({"session_id": session.id})
+    return JsonResponse({"error": "Unauthorized"}, status=401)
