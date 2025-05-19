@@ -10,7 +10,8 @@ CV Chat Assistant
         <div class="inline-flex items-center gap-2 font-semibold text-gray-900 text-md">
             <i class="fas fa-robot text-sm"></i>
             CV-Insight-AI
-            <span class="ml-1 px-2 py-0.5 rounded-full bg-gray-100 border text-xs font-medium text-gray-600 align-middle">v1.0</span>
+            <span
+                class="ml-1 px-2 py-0.5 rounded-full bg-gray-100 border text-xs font-medium text-gray-600 align-middle">v1.0</span>
         </div>
         <div class="inline-flex items-center gap-2">
             <button
@@ -30,7 +31,8 @@ CV Chat Assistant
             </a>
         </div>
     </div>
-    <div class="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4 max-h-[calc(100vh-280px)]" id="chat-messages">
+    <div class="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4 max-h-[calc(100vh-280px)]"
+        id="chat-messages">
         {% if chats|length == 0 and show_greeting %}
         <div class="flex justify-start mb-4">
             <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
@@ -52,7 +54,7 @@ CV Chat Assistant
         <div class="flex justify-start mb-4">
             <div class="max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md">
                 <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
-                <div>{{ chat.message }}</div>
+                <div>{{ chat.message|safe }}</div>
             </div>
         </div>
         {% elif chat.role == 'system' %}
@@ -72,6 +74,7 @@ CV Chat Assistant
     <form method="post" class="flex items-center gap-2 mt-auto" autocomplete="off">
         {% csrf_token %}
         <input type="hidden" name="session_id" value="{{ session_id|default:'' }}">
+        <input type="hidden" name="agent_id" value="{{ agent_id|default:'' }}">
         <input id="question-input" name="question" type="text" placeholder="Ask about candidates..."
             class="flex-1 border border-gray-200 rounded-lg px-4 py-2 h-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
             autocomplete="off" required />
@@ -81,7 +84,7 @@ CV Chat Assistant
         </button>
     </form>
     <script>
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('DOMContentLoaded', function () {
             var input = document.getElementById('question-input');
             if (input) input.focus();
             // Scroll chat-messages ke bawah saat halaman dimuat
