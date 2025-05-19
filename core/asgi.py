@@ -15,9 +15,10 @@ from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 
-import django 
-django.setup()
+import django
 from core.urls import websocket_urlpatterns
+
+django.setup()
 
 application = ProtocolTypeRouter(
     {
