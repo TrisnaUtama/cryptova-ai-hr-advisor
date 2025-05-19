@@ -3,7 +3,7 @@ from apps.chat.models import Chat, ChatSession
 from django.contrib.auth import get_user_model
 from core.ai.prompt_manager import PromptManagerAgent
 from core.ai.system_prompt import CV_ADVISOR
-from core.ai.tools import fetch_weather, get_list_of_highest_cv_score
+from core.ai.tools import get_cv_by_job_category, get_list_of_highest_cv_score, get_cv_by_id
 from core.methods import send_chat_message
 from openai import OpenAI
 import os
@@ -22,8 +22,10 @@ def process_chat(message, session_id, user_id):
         name="Cryptova CV Advisor",
         instructions=CV_ADVISOR
     )
-    agent.add_tool(fetch_weather)
+    agent.add_tool(get_cv_by_job_category)
     agent.add_tool(get_list_of_highest_cv_score)
+    agent.add_tool(get_cv_by_id)
+
 
     # Check or create chat session
     session = None
