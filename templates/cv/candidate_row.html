@@ -1,17 +1,9 @@
 <tr>
     <td class="py-3 px-4 font-medium text-gray-900">
-        {% if candidate.candidate_name %}
-        {{ candidate.candidate_name }}
-        {% else %}
-        -
-        {% endif %}
+        {{ candidate.candidate_name|default:"-" }}
     </td>
     <td class="py-3 px-4 text-gray-700">
-        {% if candidate.candidate_email %}
-        {{ candidate.candidate_email }}
-        {% else %}
-        -
-        {% endif %}
+        {{ candidate.candidate_email|default:"-" }}
     </td>
     <td class="py-3 px-4">
         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
@@ -23,13 +15,14 @@
                 bg-yellow-100 text-yellow-800
             {% endif %}
         ">
-            {{ candidate.overall_score }}
+            {{ candidate.overall_score|default:"-" }}
         </span>
     </td>
     <td class="py-3 px-4 text-gray-500">{{ candidate.created_at }}</td>
     <td class="py-3 px-4 text-gray-500">
+        {% if candidate.sync_status %}
         <span class="inline-flex px-2 border rounded-md py-1 font-semibold
-             {% if candidate.sync_status == 'pending' %}
+            {% if candidate.sync_status == 'pending' %}
                 bg-gray-100 text-gray-800 border-gray-300
             {% elif candidate.sync_status == 'processing' %}
                 bg-yellow-100 text-yellow-800 border-yellow-300
@@ -37,260 +30,197 @@
                 bg-green-100 text-green-800 border-green-300
             {% elif candidate.sync_status == 'failed' %}
                 bg-red-100 text-red-800 border-red-300
+            {% else %}
+                bg-gray-100 text-gray-800 border-gray-300
             {% endif %}
         ">
             {{ candidate.sync_status|upper }}
         </span>
+        {% else %}
+        <span class="text-gray-400 italic">No Status</span>
+        {% endif %}
     </td>
-    <td class="py-3 px-4 text-right text-gray-400 relative">
-  <div class="relative inline-block text-left w-full">
-    <button
-      class="p-1.5 rounded-full hover:bg-gray-100 focus:outline-none dropdown-trigger"
-      data-candidate-id="{{ candidate.id }}"
-      aria-haspopup="true"
-      aria-expanded="false"
-    >
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="1.5" />
-        <circle cx="19.5" cy="12" r="1.5" />
-        <circle cx="4.5" cy="12" r="1.5" />
-      </svg>
-    </button>
+    <td class="py-3 px-4 text-right text-gray-400">
+        <div class="relative inline-block text-left">
+            <button class="p-1.5 rounded-full hover:bg-gray-100 focus:outline-none dropdown-trigger"
+                    data-candidate-id="{{ candidate.id }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="1.5" />
+                    <circle cx="19.5" cy="12" r="1.5" />
+                    <circle cx="4.5" cy="12" r="1.5" />
+                </svg>
+            </button>
+            <div class="dropdown-menu absolute right-0 mt-2 w-44 origin-top-right rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden z-50">
+                {% if candidate.id %}
+                <a href="{% url 'detail_candidate' candidate.id %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Details
+                    </div>
+                </a>
+                {% endif %}
 
-    <div
-      class="dropdown-menu absolute right-0 mt-2 w-44 origin-top-right rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden z-50"
-      role="menu"
-    >
-      <a
-        href="{% url 'detail_candidate' candidate.id %}"
-        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-        role="menuitem"
-      >
-        <div class="flex items-center">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-          Details
-        </div>
-      </a>
-
-      {% if candidate.sync_status == 'failed' %}
-      <button
-        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 reprocess-btn"
-        data-candidate-id="{{ candidate.id }}"
-        role="menuitem"
-      >
-        <div class="flex items-center">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Reprocess
-        </div>
-      </button>
-      {% endif %}
-    </div>
-  </div>
-</td>
-
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDropdowns();
-        });
-
-        // init dropdown
-        function initializeDropdowns() {
-            document.addEventListener('click', function(e) {
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    if (!menu.parentElement.contains(e.target)) {
-                        menu.classList.add('hidden');
-                    }
-                });
-            });
-
-            // toggle dropsown 
-            document.querySelectorAll('.dropdown-trigger').forEach(trigger => {
-                trigger.removeEventListener('click', toggleDropdown);
-                trigger.addEventListener('click', toggleDropdown);
-            });
-
-            // btn reprocess cv (failed)
-            document.querySelectorAll('.reprocess-btn').forEach(btn => {
-                btn.removeEventListener('click', handleReprocessClick);
-                btn.addEventListener('click', handleReprocessClick);
-            });
-        }
-
-        // toggle dropdown visibility
-        function toggleDropdown(e) {
-            e.stopPropagation();
-            const menu = this.nextElementSibling;
-            
-            // close all other dropdowns
-            document.querySelectorAll('.dropdown-menu').forEach(otherMenu => {
-                if (otherMenu !== menu) {
-                    otherMenu.classList.add('hidden');
-                }
-            });
-            
-            // toggle current dropdown
-            menu.classList.toggle('hidden');
-        }
-
-        // handle reprocess button click
-        function handleReprocessClick(e) {
-            e.preventDefault();
-            const candidateId = this.dataset.candidateId;
-            
-            // how processing indicator
-            const row = this.closest('tr');
-            const statusCell = row.querySelector('td:nth-child(5)');
-            const oldStatus = statusCell.innerHTML;
-            
-            statusCell.innerHTML = `
-                <span class="inline-flex px-2 border rounded-md py-1 font-semibold bg-yellow-100 text-yellow-800 border-yellow-300">
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    REPROCESSING
-                </span>
-            `;
-            
-            // Close dropdown
-            const dropdown = this.closest('.dropdown-menu');
-            dropdown.classList.add('hidden');
-            
-            // Send request to reprocess
-            fetch(`/cv/${candidateId}/reprocess/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Reprocessing failed');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Update status on success
-                statusCell.innerHTML = `
-                    <span class="inline-flex px-2 border rounded-md py-1 font-semibold bg-yellow-100 text-yellow-800 border-yellow-300">
-                        PROCESSING
-                    </span>
-                `;
-                
-                // Show success notification
-                showNotification('Reprocessing started successfully', 'success');
-            })
-            .catch(error => {
-                // Restore old status on error
-                statusCell.innerHTML = oldStatus;
-                showNotification('Failed to start reprocessing', 'error');
-            });
-        }
-
-        // Get CSRF token from cookies
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        // Show notification
-        function showNotification(message, type) {
-            let notificationContainer = document.getElementById('notification-container');
-            if (!notificationContainer) {
-                notificationContainer = document.createElement('div');
-                notificationContainer.className = 'fixed top-4 right-4 z-50 flex flex-col items-end space-y-2 max-w-sm';
-                document.body.appendChild(notificationContainer);
-            }
-            
-            const notification = document.createElement('div');
-            notification.className = `notification flex items-center p-4 mb-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
-            notification.innerHTML = `
-                <div class="flex-shrink-0 mr-3">
-                    ${type === 'success' ? 
-                        '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>' : 
-                        '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>'
-                    }
-                </div>
-                <div>${message}</div>
-                <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 inline-flex h-8 w-8 hover:bg-gray-200">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                    </svg>
+                {% if candidate.sync_status == 'failed' %}
+                <button class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 reprocess-btn"
+                        data-candidate-id="{{ candidate.id }}">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Reprocess
+                    </div>
                 </button>
-            `;
-            
-            notificationContainer.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.classList.add('opacity-0');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 5000);
-            
-            notification.querySelector('button').addEventListener('click', () => {
-                notification.classList.add('opacity-0');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            });
-        }
-    </script>
-    
-    <style>
-        .dropdown-container {
-            display: inline-block;
-        }
-        
-        .dropdown-menu {
-            transform-origin: top right;
-            transition: opacity 0.1s ease, transform 0.1s ease;
-            position: absolute;
-            right: 0;
-            z-index: 50;
-        }
-        
-        .dropdown-menu:not(.hidden) {
-            animation: dropdownAppear 0.2s ease;
-        }
-        
-        @keyframes dropdownAppear {
-            from {
-                opacity: 0;
-                transform: scale(0.95) translateY(5px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-        
-        .notification {
-            transition: opacity 0.3s ease;
-        }
-        
-        .notification.opacity-0 {
-            opacity: 0;
-        }
-    </style>
+                {% endif %}
+            </div>
+        </div>
+    </td>
 </tr>
+
+
+    
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    initializeDropdowns();
+});
+
+function initializeDropdowns() {
+    document.addEventListener('click', function (e) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            if (!menu.parentElement.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    });
+
+    document.querySelectorAll('.dropdown-trigger').forEach(trigger => {
+        trigger.removeEventListener('click', toggleDropdown);
+        trigger.addEventListener('click', toggleDropdown);
+    });
+
+    document.querySelectorAll('.reprocess-btn').forEach(btn => {
+        btn.removeEventListener('click', handleReprocessClick);
+        btn.addEventListener('click', handleReprocessClick);
+    });
+}
+
+function toggleDropdown(e) {
+    e.stopPropagation();
+    const menu = this.nextElementSibling;
+    document.querySelectorAll('.dropdown-menu').forEach(other => {
+        if (other !== menu) other.classList.add('hidden');
+    });
+    menu.classList.toggle('hidden');
+}
+
+function handleReprocessClick(e) {
+    e.preventDefault();
+    const candidateId = this.dataset.candidateId;
+    const row = this.closest('tr');
+    const statusCell = row.querySelector('td:nth-child(5)');
+    const oldStatus = statusCell.innerHTML;
+
+    statusCell.innerHTML = `
+        <span class="inline-flex px-2 border rounded-md py-1 font-semibold bg-yellow-100 text-yellow-800 border-yellow-300">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            REPROCESSING
+        </span>
+    `;
+
+    this.closest('.dropdown-menu').classList.add('hidden');
+
+    fetch(`/cv/${candidateId}/reprocess/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error();
+        return response.json();
+    })
+    .then(() => {
+        statusCell.innerHTML = `
+            <span class="inline-flex px-2 border rounded-md py-1 font-semibold bg-yellow-100 text-yellow-800 border-yellow-300">
+                PROCESSING
+            </span>
+        `;
+        showNotification('Reprocessing started successfully', 'success');
+    })
+    .catch(() => {
+        statusCell.innerHTML = oldStatus;
+        showNotification('Failed to start reprocessing', 'error');
+    });
+}
+
+function getCookie(name) {
+    const cookie = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+    return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+}
+
+function showNotification(message, type) {
+    let container = document.getElementById('notification-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'notification-container';
+        container.className = 'fixed top-4 right-4 z-50 space-y-2 max-w-sm';
+        document.body.appendChild(container);
+    }
+
+    const alert = document.createElement('div');
+    alert.className = `p-4 rounded-md shadow-md flex items-center gap-2 ${
+        type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+    }`;
+    alert.innerHTML = `
+        <div>${message}</div>
+        <button onclick="this.parentElement.remove()" class="ml-auto">✕</button>
+    `;
+    container.appendChild(alert);
+    setTimeout(() => alert.remove(), 5000);
+}
+</script>
+
+    
+<style>
+    .dropdown-container {
+        display: inline-block;
+    }        
+    .dropdown-menu {
+        transform-origin: top right;
+        transition: opacity 0.1s ease, transform 0.1s ease;
+        position: absolute;
+        right: 0;
+        z-index: 50;
+    }
+    
+    .dropdown-menu:not(.hidden) {
+        animation: dropdownAppear 0.2s ease;
+    }
+        
+    @keyframes dropdownAppear {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(5px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    .notification {
+        transition: opacity 0.3s ease;
+    }    
+    .notification.opacity-0 {
+        opacity: 0;
+    }
+</style>

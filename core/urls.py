@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
-from core.consumer import NotificationConsumer
+from core.consumer import ChatConsumer, NotificationConsumer
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -16,6 +16,7 @@ urlpatterns = [
 
 websocket_urlpatterns = [
     path("ws/notifications/", NotificationConsumer.as_asgi()),
+    path("ws/chat/<str:session_id>/", ChatConsumer.as_asgi()),
 ]
 
 if os.getenv("DEBUG") == "True":

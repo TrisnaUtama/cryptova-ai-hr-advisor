@@ -33,15 +33,11 @@ CV Chat Assistant
     </div>
     <div class="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4 max-h-[calc(100vh-280px)]"
         id="chat-messages">
-        {% if chats|length == 0 and show_greeting %}
-        <div class="flex justify-start mb-4">
-            <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
-                <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
-                <div>Hello! I'm CV-Insight-AI, your assistant for analyzing candidate CVs. How can I help you today?
-                </div>
+        <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
+            <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
+            <div>Hello! I'm CV-Insight-AI, your assistant for analyzing candidate CVs. How can I help you today?
             </div>
         </div>
-        {% endif %}
         {% for chat in chats %}
         {% if chat.role == 'user' or chat.role == None %}
         <div class="flex justify-end mb-4">
@@ -54,45 +50,147 @@ CV Chat Assistant
         <div class="flex justify-start mb-4">
             <div class="max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md">
                 <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
-                <div>{{ chat.message|safe }}</div>
-            </div>
-        </div>
-        {% elif chat.role == 'system' %}
-        <div class="flex justify-start mb-4">
-            <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
-                <div class="text-xs text-left mb-1 opacity-70">System</div>
                 <div>{{ chat.message }}</div>
             </div>
         </div>
         {% endif %}
         {% empty %}
-        {% if not show_greeting %}
+        {% if session_id is None %}
         <div class="text-center text-gray-400">No chat yet. Start a conversation below!</div>
         {% endif %}
         {% endfor %}
     </div>
-    <form method="post" class="flex items-center gap-2 mt-auto" autocomplete="off">
-        {% csrf_token %}
+    <div class="flex items-center gap-2 mt-auto" autocomplete="off" id="chat-input-container">
         <input type="hidden" name="session_id" value="{{ session_id|default:'' }}">
-        <input type="hidden" name="agent_id" value="{{ agent_id|default:'' }}">
         <input id="question-input" name="question" type="text" placeholder="Ask about candidates..."
             class="flex-1 border border-gray-200 rounded-lg px-4 py-2 h-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
             autocomplete="off" required />
-        <button type="submit"
+        <button id="send-btn"
             class="px-4 h-12 cursor-pointer rounded-lg bg-gray-900 text-white font-semibold hover:bg-gray-700 transition-all">
             Send
         </button>
-    </form>
-    <script>
-        window.addEventListener('DOMContentLoaded', function () {
-            var input = document.getElementById('question-input');
-            if (input) input.focus();
-            // Scroll chat-messages ke bawah saat halaman dimuat
-            var chatBox = document.getElementById('chat-messages');
-            if (chatBox) {
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        });
-    </script>
+    </div>
 </div>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        var input = document.getElementById('question-input');
+        if (input) input.focus();
+        // Scroll chat-messages ke bawah saat halaman dimuat
+        var chatBox = document.getElementById('chat-messages');
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    const sessionId = "{{ session_id }}";
+    const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${sessionId}/`);
+    const inputDom = document.getElementById('question-input');
+    const sendBtn = document.getElementById('send-btn');
+    const notifContainer = document.getElementById("chat-messages");
+    let lastAssistantBubble = null;
+    let isStreaming = false;
+    let assistantStreamBuffer = "";
+
+    function setInputDisabled(disabled) {
+        inputDom.disabled = disabled;
+        sendBtn.disabled = disabled;
+        if (disabled) {
+            sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            inputDom.focus(); // Fokus ke input jika sudah enable
+        }
+    }
+
+    function sendMessage() {
+        const message = inputDom.value;
+        if (isStreaming) return;
+
+        if (message.trim() === '') return;
+        if (!sessionId) {
+            // Simpan pesan ke localStorage sebelum redirect
+            localStorage.setItem('pending_chat_message', message);
+            console.log("Pending message:", message);
+            fetch('/chat/create-session/', { method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.session_id) {
+                        window.location.href = `/chat?session_id=${data.session_id}`;
+                    }
+                });
+            return;
+        }
+        ws.send(JSON.stringify({ 'message': message }));
+        inputDom.value = '';
+        const newUserChat = document.createElement("div");
+        newUserChat.className = "flex justify-end mb-4";
+        newUserChat.innerHTML = `<div class='max-w-lg bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md'><div class='text-xs text-left mb-1 opacity-70'>You</div><div>${marked.parse(message)}</div></div>`;
+        notifContainer.append(newUserChat);
+        notifContainer.scrollTop = notifContainer.scrollHeight;
+    }
+
+    ws.onopen = () => {
+        console.log("Connected");
+        const pending = localStorage.getItem('pending_chat_message');
+        console.log("Has pending message:", pending);
+        if (pending) {
+            ws.send(JSON.stringify({ 'message': pending }));
+            localStorage.removeItem('pending_chat_message');
+            const newUserChat = document.createElement("div");
+            newUserChat.className = "flex justify-end mb-4";
+            newUserChat.innerHTML = `<div class='max-w-lg bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md'><div class='text-xs text-left mb-1 opacity-70'>You</div><div>${marked.parse(pending)}</div></div>`;
+            notifContainer.append(newUserChat);
+            notifContainer.scrollTop = notifContainer.scrollHeight;
+        }
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (!lastAssistantBubble) {
+            lastAssistantBubble = document.createElement("div");
+            lastAssistantBubble.className = "flex justify-start mb-4";
+            lastAssistantBubble.innerHTML = `<div class='max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md'><div class='text-xs text-left mb-1 opacity-70'>CV-Insight-AI</div><div class='assistant-stream'></div></div>`;
+            notifContainer.append(lastAssistantBubble);
+            notifContainer.scrollTop = notifContainer.scrollHeight;
+            isStreaming = true;
+            setInputDisabled(true);
+        }
+
+
+        if (window.assistantStreamTimeout) clearTimeout(window.assistantStreamTimeout);
+        if (data.done) {
+            lastAssistantBubble = null;
+            isStreaming = false;
+            setInputDisabled(false);
+            assistantStreamBuffer = "";
+        } else {
+            // Do NOT initialize from innerHTML!
+            assistantStreamBuffer += data.message; // accumulate tokens as plain text
+            lastAssistantBubble.querySelector('.assistant-stream').innerHTML = marked.parse(assistantStreamBuffer); // render the full message
+            notifContainer.scrollTop = notifContainer.scrollHeight;
+            window.assistantStreamTimeout = setTimeout(() => {
+                lastAssistantBubble = null;
+                isStreaming = false;
+                setInputDisabled(false);
+            }, 2000);
+        }
+    };
+
+    ws.onclose = () => {
+        console.log("Disconnected");
+    };
+
+    inputDom.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    sendBtn.onclick = function (e) {
+        e.preventDefault();
+        sendMessage();
+    };
+</script>
 {% endblock sidebar_content %}

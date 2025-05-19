@@ -125,10 +125,12 @@ def search_candidates(request):
     page_obj = paginator.get_page(page_number)
     candidates = [
         {
+            "id": c.id,
             "candidate_name": c.candidate_name,
             "candidate_email": c.candidate_email,
             "overall_score": c.overall_score,
             "score": c.overall_score,
+            "sync_status": c.sync_status,
             "created_at": c.created_at.strftime("%Y-%m-%d") if c.created_at else "",
         }
         for c in page_obj
