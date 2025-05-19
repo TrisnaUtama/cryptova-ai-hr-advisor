@@ -92,6 +92,7 @@ def process_cv(document: CV):
         pm.add_message("user", f"Extract information from this CV: {content}")
 
         cv_data = pm.generate_structured(CVBase)
+        print(cv_data)
         extract_and_save_cv_data(document, cv_data)
 
         logger.info(f"Successfully processed CV for {cv_data.get('candidate_name')}")

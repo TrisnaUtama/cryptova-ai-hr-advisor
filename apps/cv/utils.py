@@ -44,6 +44,7 @@ def extract_and_save_cv_data(document, cv_data):
             candidate_email=clean_null_bytes(cv_data.get("candidate_email")),
             candidate_phone=clean_null_bytes(cv_data.get("candidate_phone")),
             candidate_title=clean_null_bytes(cv_data.get("candidate_title")),
+            candidate_category=clean_null_bytes(cv_data.get("candidate_category")),
             description=clean_null_bytes(cv_data.get("description")),
             overall_score=cv_data.get("overall_score"),
             experience_score=cv_data.get("experience_score"),

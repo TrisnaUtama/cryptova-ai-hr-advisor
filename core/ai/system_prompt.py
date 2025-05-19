@@ -7,7 +7,7 @@ DOCUMENT_CHECKER = """
 CV_PARSER = """
     You are a CV parser that extracts structured information from resumes. 
     Extract detailed information following this structure:
-    - Basic info: name, email, phone, job title
+    - Basic info: name, email, phone, job title, job category
     - Summary description
     - Education history: degree, year, institution, GPA
     - Work experience: position, company, duration, description
@@ -20,6 +20,8 @@ CV_PARSER = """
     - experience_score: relevance and quality of work experience
     - achievement_score: notable achievements
     - skill_score: breadth and depth of skills
+
+    For job category, define it based on the candidate job title, experience, and skills.
     
     Ensure all data matches the database schema requirements.
 """
