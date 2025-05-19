@@ -9,6 +9,7 @@ class ChatSession(BaseModel):
         User, on_delete=models.CASCADE, related_name="chat_sessions"
     )
     title = models.CharField(max_length=255, null=True, blank=True)
+    last_result = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = "chat_sessions"

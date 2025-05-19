@@ -218,6 +218,8 @@
         } else {
           showToast("error", data.error || "Upload failed.");
         }
+
+        window.location.reload();
       })
       .catch(() => {
         showToast("error", "Upload error.");

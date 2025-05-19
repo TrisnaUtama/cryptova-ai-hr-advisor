@@ -1,102 +1,89 @@
 {% extends "base_sidebar.html" %}
 {% block title %}
-    CV Chat Assistant
+CV Chat Assistant
 {% endblock title %}
 {% block sidebar_content %}
-    <div class="w-full flex flex-col h-full">
-        <h1 class="text-2xl font-bold text-gray-900 mb-4">CV Chat Assistant</h1>
-        <p class="text-gray-500 mb-2">Ask questions about your candidate</p>
-        <div class="flex items-center justify-between mb-4">
-            <div class="inline-flex items-center gap-2 font-semibold text-gray-900 text-md">
-                <i class="fas fa-robot text-sm"></i>
-                CV-Insight-AI
-                <span class="ml-1 px-2 py-0.5 rounded-full bg-gray-100 border text-xs font-medium text-gray-600 align-middle">v1.0</span>
-            </div>
-            <div class="inline-flex items-center gap-2">
-                <button class="px-4 py-2 cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border border-gray-200 shadow-md text-sm font-medium">
-                    <i class="fas fa-download mr-2"></i>
-                    Export
-                </button>
-                <button class="px-4 py-2 cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border border-gray-200 shadow-md text-sm font-medium">
-                    <i class="fas fa-arrows-rotate mr-2"></i>
-                    Reset
-                </button>
-                <a href="{% url 'chat_history' %}"
-                   class="px-4 py-2 cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border border-gray-200 shadow-md text-sm font-medium inline-flex items-center">
-                    <i class="fas fa-clock-rotate-left mr-2"></i>
-                    History
-                </a>
-            </div>
+<div class="w-full flex flex-col h-full">
+    <h1 class="text-2xl font-bold text-gray-900 mb-4">CV Chat Assistant</h1>
+    <p class="text-gray-500 mb-2">Ask questions about your candidate</p>
+    <div class="flex items-center justify-between mb-4">
+        <div class="inline-flex items-center gap-2 font-semibold text-gray-900 text-md">
+            <i class="fas fa-robot text-sm"></i>
+            CV-Insight-AI
+            <span
+                class="ml-1 px-2 py-0.5 rounded-full bg-gray-100 border text-xs font-medium text-gray-600 align-middle">v1.0</span>
         </div>
-        <div class="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4 max-h-[calc(100vh-280px)]"
-             id="chat-messages">
-            {% if chats|length == 0 and session_id is not None %}
-                <div class="flex justify-start mb-4">
-                    <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
-                        <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
-                        <div>Hello! I'm CV-Insight-AI, your assistant for analyzing candidate CVs. How can I help you today?</div>
-                    </div>
-                </div>
-            {% endif %}
-            {% for chat in chats %}
-                {% if chat.role == 'user' or chat.role == None %}
-                    <div class="flex justify-end mb-4">
-                        <div class="max-w-lg bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md">
-                            <div class="text-xs text-left mb-1 opacity-70">You</div>
-                            <div>{{ chat.message }}</div>
-                        </div>
-                    </div>
-                {% elif chat.role == 'assistant' %}
-                    <div class="flex justify-start mb-4">
-                        <div class="max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md">
-                            <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
-                            <div>{{ chat.message }}</div>
-                        </div>
-                    </div>
-                {% elif chat.role == 'system' %}
-                    <div class="flex justify-start mb-4">
-                        <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
-                            <div class="text-xs text-left mb-1 opacity-70">System</div>
-                            <div>{{ chat.message }}</div>
-                        </div>
-                    </div>
-                {% endif %}
-            {% empty %}
-                {% if session_id is None %}
-                    <div class="text-center text-gray-400">No chat yet. Start a conversation below!</div>
-                {% endif %}
-            {% endfor %}
-        </div>
-        <div class="flex items-center gap-2 mt-auto"
-             autocomplete="off"
-             id="chat-input-container">
-            <input type="hidden" name="session_id" value="{{ session_id|default:'' }}">
-            <input id="question-input"
-                   name="question"
-                   type="text"
-                   placeholder="Ask about candidates..."
-                   class="flex-1 border border-gray-200 rounded-lg px-4 py-2 h-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
-                   autocomplete="off"
-                   required />
-            <button id="send-btn"
-                    class="px-4 h-12 cursor-pointer rounded-lg bg-gray-900 text-white font-semibold hover:bg-gray-700 transition-all">
-                Send
+        <div class="inline-flex items-center gap-2">
+            <button
+                class="px-4 py-2 cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border border-gray-200 shadow-md text-sm font-medium">
+                <i class="fas fa-download mr-2"></i>
+                Export
             </button>
+            <button
+                class="px-4 py-2 cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border border-gray-200 shadow-md text-sm font-medium">
+                <i class="fas fa-arrows-rotate mr-2"></i>
+                Reset
+            </button>
+            <a href="{% url 'chat_history' %}"
+                class="px-4 py-2 cursor-pointer rounded-lg bg-white text-gray-700 hover:bg-gray-200 transition-all border border-gray-200 shadow-md text-sm font-medium inline-flex items-center">
+                <i class="fas fa-clock-rotate-left mr-2"></i>
+                History
+            </a>
         </div>
     </div>
-    <script>
-        window.addEventListener('DOMContentLoaded', function() {
-            var input = document.getElementById('question-input');
-            if (input) input.focus();
-            // Scroll chat-messages ke bawah saat halaman dimuat
-            var chatBox = document.getElementById('chat-messages');
-            if (chatBox) {
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
+    <div class="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4 max-h-[calc(100vh-280px)]"
+        id="chat-messages">
+        <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
+            <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
+            <div>Hello! I'm CV-Insight-AI, your assistant for analyzing candidate CVs. How can I help you today?
+            </div>
+        </div>
+        {% for chat in chats %}
+        {% if chat.role == 'user' or chat.role == None %}
+        <div class="flex justify-end mb-4">
+            <div class="max-w-lg bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md">
+                <div class="text-xs text-left mb-1 opacity-70">You</div>
+                <div>{{ chat.message }}</div>
+            </div>
+        </div>
+        {% elif chat.role == 'assistant' %}
+        <div class="flex justify-start mb-4">
+            <div class="max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md">
+                <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
+                <div>{{ chat.message }}</div>
+            </div>
+        </div>
+        {% endif %}
+        {% empty %}
+        {% if session_id is None %}
+        <div class="text-center text-gray-400">No chat yet. Start a conversation below!</div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="flex items-center gap-2 mt-auto" autocomplete="off" id="chat-input-container">
+        <input type="hidden" name="session_id" value="{{ session_id|default:'' }}">
+        <input id="question-input" name="question" type="text" placeholder="Ask about candidates..."
+            class="flex-1 border border-gray-200 rounded-lg px-4 py-2 h-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+            autocomplete="off" required />
+        <button id="send-btn"
+            class="px-4 h-12 cursor-pointer rounded-lg bg-gray-900 text-white font-semibold hover:bg-gray-700 transition-all">
+            Send
+        </button>
+    </div>
+</div>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        var input = document.getElementById('question-input');
+        if (input) input.focus();
+        // Scroll chat-messages ke bawah saat halaman dimuat
+        var chatBox = document.getElementById('chat-messages');
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
     const sessionId = "{{ session_id }}";
     const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${sessionId}/`);
     const inputDom = document.getElementById('question-input');
@@ -104,6 +91,7 @@
     const notifContainer = document.getElementById("chat-messages");
     let lastAssistantBubble = null;
     let isStreaming = false;
+    let assistantStreamBuffer = "";
 
     function setInputDisabled(disabled) {
         inputDom.disabled = disabled;
@@ -119,13 +107,13 @@
     function sendMessage() {
         const message = inputDom.value;
         if (isStreaming) return;
-        
+
         if (message.trim() === '') return;
         if (!sessionId) {
             // Simpan pesan ke localStorage sebelum redirect
             localStorage.setItem('pending_chat_message', message);
             console.log("Pending message:", message);
-            fetch('/chat/create-session/', {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}})
+            fetch('/chat/create-session/', { method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
                 .then(response => response.json())
                 .then(data => {
                     if (data.session_id) {
@@ -169,15 +157,19 @@
             isStreaming = true;
             setInputDisabled(true);
         }
-        lastAssistantBubble.querySelector('.assistant-stream').innerHTML = marked.parse(data.message);
-        notifContainer.scrollTop = notifContainer.scrollHeight;
+
 
         if (window.assistantStreamTimeout) clearTimeout(window.assistantStreamTimeout);
         if (data.done) {
             lastAssistantBubble = null;
             isStreaming = false;
             setInputDisabled(false);
+            assistantStreamBuffer = "";
         } else {
+            // Do NOT initialize from innerHTML!
+            assistantStreamBuffer += data.message; // accumulate tokens as plain text
+            lastAssistantBubble.querySelector('.assistant-stream').innerHTML = marked.parse(assistantStreamBuffer); // render the full message
+            notifContainer.scrollTop = notifContainer.scrollHeight;
             window.assistantStreamTimeout = setTimeout(() => {
                 lastAssistantBubble = null;
                 isStreaming = false;
@@ -190,15 +182,15 @@
         console.log("Disconnected");
     };
 
-    inputDom.addEventListener('keydown', function(e) {
+    inputDom.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
             sendMessage();
         }
     });
-    sendBtn.onclick = function(e) {
+    sendBtn.onclick = function (e) {
         e.preventDefault();
         sendMessage();
     };
-    </script>
+</script>
 {% endblock sidebar_content %}

@@ -32,6 +32,7 @@ class CV(BaseModel):
     candidate_email = models.EmailField(null=True, blank=True)
     candidate_phone = models.CharField(max_length=50, null=True, blank=True)
     candidate_title = models.CharField(max_length=255, null=True, blank=True)
+    candidate_category = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     overall_score = models.FloatField(blank=True, null=True)
     experience_score = models.FloatField(blank=True, null=True)

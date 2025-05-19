@@ -59,61 +59,61 @@
 
 <script>
     const wsNotification = document.getElementById("ws-notification");
-    const ws = new WebSocket("ws://localhost:8080/ws/notifications/");
+    const ws = new WebSocket("ws://localhost:8000/ws/notifications/");
 
     ws.onopen = () => console.log("WebSocket connected");
     ws.onclose = () => console.log("WebSocket disconnected");
 
-let notificationQueue = [];
-let isNotificationShowing = false;
+    let notificationQueue = [];
+    let isNotificationShowing = false;
 
-ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    const message = data.message;
-    notificationQueue.push(message);
-    if (!isNotificationShowing) {
-        processQueue();
-    }
-};
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const message = data.message;
+        notificationQueue.push(message);
+        if (!isNotificationShowing) {
+            processQueue();
+        }
+    };
 
-function showNotification(message) {
-    wsNotification.textContent = message.content;
-    wsNotification.classList.remove("hidden");
+    function showNotification(message) {
+        wsNotification.textContent = message.content;
+        wsNotification.classList.remove("hidden");
 
-    // style toast notification
-    wsNotification.style.backgroundColor = "#e0f2fe"; 
-    wsNotification.style.color = "#0369a1";
+        // style toast notification
+        wsNotification.style.backgroundColor = "#e0f2fe";
+        wsNotification.style.color = "#0369a1";
 
-    // Highlight candidate row if numeric ID extracted
-    if (message.document_id) {
-        const match = message.document_id.match(/cv\/(\d+)\//);
-        const numericId = match ? match[1] : null;
-        if (numericId) {
-            const row = document.querySelector(`[data-document-id='${numericId}']`);
-            if (row) {
-                row.classList.add("bg-yellow-100");
-                setTimeout(() => row.classList.remove("bg-yellow-100"), 4000);
+        // Highlight candidate row if numeric ID extracted
+        if (message.document_id) {
+            const match = message.document_id.match(/cv\/(\d+)\//);
+            const numericId = match ? match[1] : null;
+            if (numericId) {
+                const row = document.querySelector(`[data-document-id='${numericId}']`);
+                if (row) {
+                    row.classList.add("bg-yellow-100");
+                    setTimeout(() => row.classList.remove("bg-yellow-100"), 4000);
+                }
             }
         }
     }
-}
 
-function processQueue() {
-    if (notificationQueue.length === 0) {
-        isNotificationShowing = false;
-        wsNotification.classList.add("hidden");
-        return;
+    function processQueue() {
+        if (notificationQueue.length === 0) {
+            isNotificationShowing = false;
+            wsNotification.classList.add("hidden");
+            return;
+        }
+
+        isNotificationShowing = true;
+        const message = notificationQueue.shift();
+        showNotification(message);
+
+        setTimeout(() => {
+            wsNotification.classList.add("hidden");
+            processQueue();
+        }, 4000);
     }
-
-    isNotificationShowing = true;
-    const message = notificationQueue.shift();
-    showNotification(message);
-
-    setTimeout(() => {
-        wsNotification.classList.add("hidden");
-        processQueue();
-    }, 4000);
-}
 
     // --- Search & Pagination ---
     let searchTimeout = null;
