@@ -8,65 +8,62 @@
             &larr; Back
           </a>
         </div>
-        
-        <div class="p-6">
+        <div class="w-full p-6">
           <!-- Basic Information -->
-          <div class="max-w-4xl mx-auto mt-6 mb-6">
-        <div class="bg-white rounded-lg shadow overflow-hidden border-gray-100">
+          <div class="mt-6 mb-6">
+            <div class="bg-white rounded-lg shadow overflow-hidden border-gray-100">
           <!-- Header Section -->
-          <div class="p-6 pb-4 flex justify-between items-start">
-            <div>
-              <h1 class="text-2xl font-bold text-gray-800">{{ cv.candidate_name|default:"Not provided" }}</h1>
-              <p class="text-gray-600">{{ cv.candidate_title|default:"Not provided" }}</p>
-            </div>
+            <div class="p-6 pb-4 flex justify-between items-start">
+              <div>
+                <h1 class="text-2xl font-bold text-gray-800">{{ cv.candidate_name|default:"Not provided" }}</h1>
+                <p class="text-gray-600">{{ cv.candidate_title|default:"Not provided" }}</p>
+              </div>
             
             <!-- Sync Status Badge -->
-            {% if cv.sync_status %}
-              <span class="inline-flex px-2 border rounded-md py-1 font-semibold
-                {% if cv.sync_status == 'pending' %}
-                    bg-gray-100 text-gray-800 border-gray-300
-                {% elif cv.sync_status == 'processing' %}
-                    bg-yellow-100 text-yellow-800 border-yellow-300
-                {% elif cv.sync_status == 'completed' %}
-                    bg-green-100 text-green-800 border-green-300
-                {% elif cv.sync_status == 'failed' %}
-                    bg-red-100 text-red-800 border-red-300
-                {% endif %}
-            ">
-            {{ cv.sync_status|upper }}
-            </span>
-            {% endif %}
-          </div>
-          
-          <!-- Content Section -->
-          <div class="grid grid-cols-1 md:grid-cols-2 border-t border-gray-200">
-            <!-- Left Column - Contact Information -->
-            <div class="p-6 border-b md:border-b-0 md:border-r border-gray-200">
-              <h2 class="text-lg font-semibold mb-4 text-gray-800">Contact Information</h2>
-              
-              <div class="space-y-3">
-                <div>
-                  <p class="text-gray-500">Email</p>
-                  {% if cv.candidate_email %}
-                    <a href="mailto:{{ cv.candidate_email }}" class="text-blue-600 hover:underline">
-                      {{ cv.candidate_email }}
-                    </a>
-                  {% else %}
-                    <span class="text-gray-400 italic">Not provided</span>
+              {% if cv.sync_status %}
+                <span class="inline-flex px-2 border rounded-md py-1 font-semibold
+                  {% if cv.sync_status == 'pending' %}
+                      bg-gray-100 text-gray-800 border-gray-300
+                  {% elif cv.sync_status == 'processing' %}
+                      bg-yellow-100 text-yellow-800 border-yellow-300
+                  {% elif cv.sync_status == 'completed' %}
+                      bg-green-100 text-green-800 border-green-300
+                  {% elif cv.sync_status == 'failed' %}
+                      bg-red-100 text-red-800 border-red-300
                   {% endif %}
-                </div>
+              ">
+              {{ cv.sync_status|upper }}
+              </span>
+              {% endif %}
+            </div>
+            <!-- Content Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 border-t border-gray-200">
+              <!-- Left Column - Contact Information -->
+              <div class="p-6 border-b md:border-b-0 md:border-r border-gray-200">
+                <h2 class="text-lg font-semibold mb-4 text-gray-800">Contact Information</h2>
                 
-                <div>
-                  <p class="text-gray-500">Phone</p>
-                  <p class="text-gray-800">{{ cv.candidate_phone|default:"Not provided" }}</p>
+                <div class="space-y-3">
+                  <div>
+                    <p class="text-gray-500">Email</p>
+                    {% if cv.candidate_email %}
+                      <a href="mailto:{{ cv.candidate_email }}" class="text-blue-600 hover:underline">
+                        {{ cv.candidate_email }}
+                      </a>
+                    {% else %}
+                      <span class="text-gray-400 italic">Not provided</span>
+                    {% endif %}
+                  </div>
+                  
+                  <div>
+                    <p class="text-gray-500">Phone</p>
+                    <p class="text-gray-800">{{ cv.candidate_phone|default:"Not provided" }}</p>
+                  </div>
                 </div>
               </div>
-            </div>
             
             <!-- Right Column - Scores -->
             <div class="p-6">
               <h2 class="text-lg font-semibold mb-4 text-gray-800">Scores</h2>
-              
               <div class="space-y-4">
                 {% for score in scores %}
                   <div>

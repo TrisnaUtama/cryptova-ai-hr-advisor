@@ -14,6 +14,7 @@ from .models import (
     CV,
     SYNC_STATUS_FAILED,
     SYNC_STATUS_PROCESSING,
+    SYNC_STATUS_COMPLETED
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -80,7 +81,7 @@ def process_cv(document: CV):
         if not check_result.get("is_cv"):
             logger.info("Document is not a CV - deleting record")
             delete_cv_and_related(document)
-            send_notification("notification", "Document is not a CV", filename)
+            send_notification("notification", "Document is not a CV", filename, document.sync_status)
             return
 
         # Continue processing if it is a CV
