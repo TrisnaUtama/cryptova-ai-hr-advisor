@@ -201,6 +201,7 @@ def process_cv(document: CV):
             "candidate_phone": cv_data_payload.get("candidate_phone"),
             "candidate_title": cv_data_payload.get("candidate_title"),
             "description_overall": cv_data_payload.get("description"),
+            "candidate_category": cv_data_payload.get("candidate_category"),
             "overall_score": float(cv_data_payload.get("overall_score"))
             if cv_data_payload.get("overall_score") is not None
             else None,

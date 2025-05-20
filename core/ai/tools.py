@@ -2,65 +2,39 @@ from agents import function_tool
 from apps.cv.models import CV
 from asgiref.sync import sync_to_async
 from django.forms.models import model_to_dict
+from apps.cv.tasks import CV_COLLECTION_NAME
+from core.ai.chroma import chroma, openai_ef
 
 @function_tool()
-async def get_list_of_highest_cv_score(max_count: int):
-    """Get the list of highest CV score"""
-    print(f"Getting the list of highest CV score with max_count: {max_count}")
-    if max_count:
-        max_count = 10
-
-    try:
-        cvs = await sync_to_async(list)(
-            CV.objects.all().order_by("-overall_score")[:max_count]
-        )
-        # Serialize the queryset to a list of dicts
-        return [
-            {
-                "id": cv.id,
-                "name": cv.candidate_name,  # adjust fields as needed
-                "overall_score": cv.overall_score,
-                # add other fields you want to expose
-            }
-            for cv in cvs
-        ]
-    except Exception as e:
-        print(f"Error getting the list of highest CV score: {e}")
-        return []
-
+async def get_list_of_cvs():
+    """Get a list of all CVs"""
+    cvs = await sync_to_async(list)(CV.objects.all())
+    return [model_to_dict(cv) for cv in cvs]
 
 @function_tool()
-async def get_cv_by_job_category(job_category: str):
-    """Get the list of CV by job category"""
-    print(f"Getting the list of CV by job category: {job_category}")
-    try:
-        cvs = await sync_to_async(list)(
-            CV.objects.filter(candidate_category__icontains=job_category).order_by("-overall_score")
-        )
-        # Serialize the queryset to a list of dicts
-        return [
-            {
-                "id": cv.id,
-                "name": cv.candidate_name,  # adjust fields as needed
-                "overall_score": cv.overall_score,
-                "candidate_category": cv.candidate_category,
-            }
-            for cv in cvs
-        ]
-    except Exception as e:
-        print(f"Error getting the list of CV by job category: {e}")
-        return []
+async def get_cv_information(query: str):
+    """Get information about a candidate based on their CV"""
+    collection = chroma.get_collection(name=CV_COLLECTION_NAME, embedding_function=openai_ef)
+    result = collection.query(query_texts=[query], n_results=3, include=["documents", "metadatas"])
+    context = ""
+    for doc in result["documents"]:
+        context += doc[0]
+    
+    return {
+        "context": context,
+        "metadata": result["metadatas"]
+    }
 
 @function_tool()
-async def get_cv_by_id(id: str):
-    """
-        Get the CV by id
-        Always use the 'id' field from the candidate list tool output when calling this tool.
-    """
-    print(f"Getting the CV by id: {id}")
-    try:
-        cv = await sync_to_async(CV.objects.get)(id=id)
-        return model_to_dict(cv)
-    except Exception as e:
-        print(f"Error getting the CV by id: {e}")
-        return None
+async def get_list_of_cv_match_with_job_description(job_description: str):
+    """Get a list of CVs that match the job description"""
+    collection = chroma.get_collection(name=CV_COLLECTION_NAME, embedding_function=openai_ef)
+    result = collection.query(query_texts=[job_description], n_results=3, include=["documents", "metadatas"])
+    context = ""
+    for doc in result["documents"]:
+        context += doc[0]
+    
+    return {
+        "context": context,
+        "metadata": result["metadatas"]
+    }
