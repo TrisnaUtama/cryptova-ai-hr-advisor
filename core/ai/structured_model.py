@@ -50,6 +50,7 @@ class CVBase(BaseModel):
     candidate_email: str = Field(description="The email of the candidate")
     candidate_phone: str = Field(description="The phone number of the candidate")
     candidate_title: str = Field(description="The job title of the candidate")
+    candidate_category: str = Field(description="The job category of the candidate, like IT, Marketing, Finance, etc.")
     description: str = Field(description="The description of the candidate")
     education: list[EducationsBase] = Field(
         description="The education of the candidate"

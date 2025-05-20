@@ -74,6 +74,9 @@ def extract_and_save_cv_data(document: CV, cv_data_payload: dict, raw_content: s
             cv_data_payload.get("candidate_title")
         )
         document.description = clean_null_bytes(cv_data_payload.get("description"))
+        document.candidate_category = clean_null_bytes(
+            cv_data_payload.get("candidate_category")
+        )
 
         document.overall_score = cv_data_payload.get("overall_score")
         document.experience_score = cv_data_payload.get("experience_score")
