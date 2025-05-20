@@ -71,9 +71,9 @@ class Language(BaseModel):
 class Education(BaseModel):
     cv = models.ForeignKey(CV, on_delete=models.CASCADE, related_name="educations")
     degree = models.CharField(max_length=100, null=True, blank=True)
-    year = models.CharField(max_length=20, null=True, blank=True)
+    year = models.CharField(max_length=100, null=True, blank=True)
     institution = models.CharField(max_length=255, null=True, blank=True)
-    gpa = models.CharField(max_length=20, null=True, blank=True)
+    gpa = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = "educations"
