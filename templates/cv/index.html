@@ -70,7 +70,6 @@
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         const message = data.message;
-        console.log(message)
         notificationQueue.push(message);
         if (!isNotificationShowing) {
             processQueue();
@@ -96,7 +95,7 @@
             }
         }
 
-        if (message.content === "CV processing failed" || message.content === "CV parsed successfully") {
+        if (message.type === "done") {
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
