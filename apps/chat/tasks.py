@@ -154,13 +154,14 @@ def process_chat(message, session_id, user_id):
                             {"message": content, "done": True}
                         )
             except InputGuardrailTripwireTriggered:
-                warning_msg = """I'm sorry, but I can only help with questions related to:
-                - Candidate CVs and resumes  
-                - Job qualifications and requirements
-                - Skills, education, and experience evaluation
-                - Candidate screening and job matching
-
-                Please rephrase your question to focus on CV/resume-related topics."""
+                warning_msg = """
+                    I'm sorry, but I can only help with questions related to:
+                    - Candidate CVs and resumes  
+                    - Job qualifications and requirements
+                    - Skills, education, and experience evaluation
+                    - Candidate screening and job matching
+                    Please rephrase your question to focus on CV/resume-related topics.
+                """
                 
                 await create_chat(session, user, "assistant", warning_msg)
                 await sync_to_async(send_chat_message)(session.id, warning_msg)
