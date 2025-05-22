@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 class CvDashboardView(LoginCheckMixin, View):
     def get(self, request):
-        candidates_qs = CV.objects.all().order_by("-created_at")
+        user_id = request.user.id
+        candidates_qs = CV.objects.filter(user_id=user_id).order_by("-created_at")
         paginator = Paginator(candidates_qs, 7)
         page_number = request.GET.get("page", 1)
         page_obj = paginator.get_page(page_number)

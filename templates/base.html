@@ -1,17 +1,31 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{% static 'output.css' %}" />
-    <title>Advisor - {% block title %}{% endblock %}</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"
-    />
-  </head>
-  <body class="h-screen w-screen overflow-x-hidden">
-    {% block content %}{% endblock content %}
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{% static 'output.css' %}" />
+  <title>Advisor - {% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    .markdown-body pre,
+    .markdown-body code {
+      white-space: pre-wrap;
+      /* wrap inside code blocks */
+      word-break: break-word;
+      /* break long words */
+      max-width: 100%;
+      /* never exceed container width */
+      overflow-x: auto;
+      /* horizontal scroll if needed */
+    }
+  </style>
+</head>
+
+<body class="h-screen w-screen overflow-x-hidden">
+  {% block content %}{% endblock content %}
+</body>
+
 </html>

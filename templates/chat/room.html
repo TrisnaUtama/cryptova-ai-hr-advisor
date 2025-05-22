@@ -50,7 +50,8 @@ CV Chat Assistant
         <div class="flex justify-start mb-4">
             <div class="max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md">
                 <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
-                <div>{{ chat.message }}</div>
+                <div class="whitespace-preline markdown-body" id="assistant-message"
+                    data-md="{{ chat.message|escapejs }}"></div>
             </div>
         </div>
         {% endif %}
@@ -72,6 +73,15 @@ CV Chat Assistant
     </div>
 </div>
 <script>
+    document.querySelectorAll('#assistant-message').forEach(div => {
+        let markdown = div.getAttribute('data-md');
+        markdown = JSON.parse(`"${markdown.replace(/"/g, '\\"')}"`);
+
+        // Parse markdown to HTML using marked
+        div.innerHTML = marked.parse(markdown);
+    });
+</script>
+<script>
     window.addEventListener('DOMContentLoaded', function () {
         var input = document.getElementById('question-input');
         if (input) input.focus();
@@ -82,7 +92,6 @@ CV Chat Assistant
         }
     });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     const sessionId = "{{ session_id }}";
     const ws = new WebSocket(`ws://${window.location.host}/ws/chat/${sessionId}/`);
@@ -151,7 +160,11 @@ CV Chat Assistant
         if (!lastAssistantBubble) {
             lastAssistantBubble = document.createElement("div");
             lastAssistantBubble.className = "flex justify-start mb-4";
-            lastAssistantBubble.innerHTML = `<div class='max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md'><div class='text-xs text-left mb-1 opacity-70'>CV-Insight-AI</div><div class='assistant-stream'></div></div>`;
+            lastAssistantBubble.innerHTML = `
+                <div class="max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md overflow-auto break-words whitespace-pre-wrap">
+                    <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
+                    <div class="assistant-stream markdown-body"></div>
+                </div>`;
             notifContainer.append(lastAssistantBubble);
             notifContainer.scrollTop = notifContainer.scrollHeight;
             isStreaming = true;

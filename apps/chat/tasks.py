@@ -43,12 +43,14 @@ def process_chat(message, session_id, user_id):
     async def save_session(session):
         await sync_to_async(session.save)()
     
-    async def main():
+    async def main(user_id, message):
         # Get user
         user = await get_user()
         
         # Initialize agent
-        agent = PromptManagerAgent()
+        agent = PromptManagerAgent(
+            user_id=user_id
+        )
         agent.create_agent(
             name="Cryptova CV Advisor",
             instructions=CV_ADVISOR
@@ -86,6 +88,7 @@ def process_chat(message, session_id, user_id):
             message=message
         )
         
+        # message += f"this is the user id: {user_id}"
         agent.append_last_result({"role": "user", "content": message})
         agent.add_message(role="user", content=message)
 
@@ -114,11 +117,12 @@ def process_chat(message, session_id, user_id):
                     )
 
         await process_stream()
+        
 
     # Create new event loop and run the async function
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(main())
+        loop.run_until_complete(main(user_id=user_id, message=message))
     finally:
         loop.close()

@@ -4,7 +4,7 @@ import uuid
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from agents import Agent, Tool, Runner, trace, ItemHelpers
+from agents import Agent, Tool, Runner, trace, ItemHelpers, RunConfig
 import asyncio
 import nest_asyncio
 import ast
@@ -55,7 +55,8 @@ class PromptManagerAgent:
         tools: list = None,
         agent_id: str = None,
         thread_id: str = None,
-        last_result: list = []
+        last_result: list = [],
+        user_id: int = None
     ):
         self.messages = messages
         self.model = model
@@ -65,6 +66,7 @@ class PromptManagerAgent:
         self.thread_id = thread_id or str(uuid.uuid4())
         if agent_id:
             self.agent = Agent.load(agent_id)
+        self.user_id = user_id
 
     def add_message(self, role: str, content: str):
         self.messages.append({"role": role, "content": content})
@@ -111,7 +113,10 @@ class PromptManagerAgent:
             conversation_input.append(self.messages[-1])
             result = Runner.run_streamed(
                 self.agent,
-                input=conversation_input
+                input=conversation_input,
+                context={
+                    "user_id": self.user_id
+                },
             )
         else:
             # First turn in the conversation
@@ -143,6 +148,7 @@ class PromptManagerAgent:
                         "content": event.item.output
                     }
                 elif event.item.type == "message_output_item":
+                    print(event)
                     yield {
                         "type": "message",
                         "content": ItemHelpers.text_message_output(event.item),
