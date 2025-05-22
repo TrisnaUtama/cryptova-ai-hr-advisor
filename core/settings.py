@@ -169,22 +169,22 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"))],
-            "capacity" : 50,
+            "hosts": [(os.getenv("REDIS_HOST", "localhost"), int(os.getenv("REDIS_PORT", 6379)))],
+            "capacity": 50,
         },
     },
 }
 
 # ChromaDB Configuration
 CHROMA_HOST = os.getenv("CHROMA_HOST", "chroma")
-CHROMA_PORT = os.getenv("CHROMA_PORT", "8000")
+CHROMA_PORT = os.getenv("CHROMA_PORT", "8010")
 
 HUEY = {
-    "huey_class" : "huey.RedisHuey",
-    "name" : "ai_advisor_huey",
-    "immediate" : False,
-    "connection" : {
-        "host" : os.getenv("REDIS_HOST"),
-        "port" : os.getenv("REDIS_PORT"),
+    "huey_class": "huey.RedisHuey",
+    "name": "ai_advisor_huey",
+    "immediate": False,
+    "connection": {
+        "host": os.getenv("REDIS_HOST", "localhost"),
+        "port": int(os.getenv("REDIS_PORT", 6379)),
     }
 }

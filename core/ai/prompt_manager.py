@@ -4,7 +4,7 @@ import uuid
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from agents import Agent, Tool, Runner, trace, ItemHelpers, RunConfig
+from agents import Agent, InputGuardrailTripwireTriggered, Tool, Runner, trace, ItemHelpers, RunConfig
 import asyncio
 import nest_asyncio
 import ast
@@ -53,6 +53,7 @@ class PromptManagerAgent:
         messages: list = [],
         model: str = "gpt-4.1-mini-2025-04-14",
         tools: list = None,
+        guardrail: list = None,
         agent_id: str = None,
         thread_id: str = None,
         last_result: list = [],
@@ -61,6 +62,7 @@ class PromptManagerAgent:
         self.messages = messages
         self.model = model
         self.tools = tools or []
+        self.guardrail = guardrail or []
         self.agent = None
         self.last_result = last_result
         self.thread_id = thread_id or str(uuid.uuid4())
@@ -82,6 +84,12 @@ class PromptManagerAgent:
 
     def set_tools(self, tools: list):
         self.tools = tools
+        
+    def add_guardrail(self, guardrail):
+        self.guardrail.append(guardrail)
+
+    def set_guardrails(self, guardrail: list):
+        self.guardrail = guardrail
 
     def create_agent(self, name: str, instructions: str):
         """Create a new agent with the specified name and instructions"""
@@ -89,15 +97,18 @@ class PromptManagerAgent:
             name=name,
             instructions=instructions,
             model=self.model,
-            tools=self.tools
+            tools=self.tools,
+            input_guardrails=self.guardrail  # Pass guardrails directly to Agent
         )
         return self.agent
 
-    def generate(self):
-        """Generate a response using the standard chat completion"""
+    async def generate(self):
+        """Generate a response using the agent framework"""
         if not self.agent:
             raise ValueError("No agent created. Call create_agent() first.")
-        return self.agent.chat(self.messages[-1]["content"])
+        
+        result = await Runner.run(self.agent, self.messages[-1]["content"])
+        return result.final_output
 
     async def generate_stream(self):
         """Generate a streaming response using the agent framework"""
@@ -212,8 +223,8 @@ class PromptManagerAgent:
     def set_thread_id(self, thread_id: str):
         """Set a new thread ID"""
         self.thread_id = thread_id
-        self.last_result = []  # Reset conversation state when changing threads
-
+        self.last_result = [] 
+        
 def convert_markdown_to_html(markdown_text):
     """Convert markdown text to HTML with code and table support"""
     extensions = [
