@@ -20,6 +20,7 @@ yarn.lock
 .env.local
 .env*.local
 .env
+.env.*
 
 **/package/  
 **/packages/ 
@@ -30,3 +31,4 @@ yarn.lock
 
 .DS_Store
 media/*
+staticfiles/*

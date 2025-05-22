@@ -85,7 +85,7 @@ CV Chat Assistant
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     const sessionId = "{{ session_id }}";
-    const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${sessionId}/`);
+    const ws = new WebSocket(`ws://${window.location.host}/ws/chat/${sessionId}/`);
     const inputDom = document.getElementById('question-input');
     const sendBtn = document.getElementById('send-btn');
     const notifContainer = document.getElementById("chat-messages");

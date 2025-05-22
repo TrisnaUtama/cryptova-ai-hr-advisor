@@ -59,7 +59,7 @@
 
 <script>
     const wsNotification = document.getElementById("ws-notification");
-    const ws = new WebSocket("ws://localhost:8000/ws/notifications/");
+    const ws = new WebSocket(`ws://${window.location.host}/ws/notifications/`);
 
     ws.onopen = () => console.log("WebSocket connected");
     ws.onclose = () => console.log("WebSocket disconnected");

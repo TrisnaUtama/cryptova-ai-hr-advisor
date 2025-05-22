@@ -3,8 +3,12 @@ import os
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from django.http import HttpResponse
 
 from core.consumer import ChatConsumer, NotificationConsumer
+
+def health_check(request):
+    return HttpResponse("OK")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -12,6 +16,7 @@ urlpatterns = [
     path("", include("apps.cv.urls")),
     path("", include("apps.dashboard.urls")),
     path("", include("apps.chat.urls")),
+    path('health/', health_check, name='health_check'),
 ]
 
 websocket_urlpatterns = [

@@ -30,7 +30,11 @@ SECRET_KEY = "django-insecure-rbbgwwgljs$-pzua7im3l(uva!bzjw9l#ni_^$msgrged4%wt&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "139.59.110.98"
+]
 
 
 # Application definition
@@ -134,7 +138,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
@@ -165,8 +169,22 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [(os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"))],
             "capacity" : 50,
         },
     },
+}
+
+# ChromaDB Configuration
+CHROMA_HOST = os.getenv("CHROMA_HOST", "chroma")
+CHROMA_PORT = os.getenv("CHROMA_PORT", "8000")
+
+HUEY = {
+    "huey_class" : "huey.RedisHuey",
+    "name" : "ai_advisor_huey",
+    "immediate" : False,
+    "connection" : {
+        "host" : os.getenv("REDIS_HOST"),
+        "port" : os.getenv("REDIS_PORT"),
+    }
 }
