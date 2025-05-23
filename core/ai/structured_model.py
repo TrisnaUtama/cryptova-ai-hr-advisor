@@ -69,3 +69,12 @@ class CVBase(BaseModel):
         description="The achievement score of the candidate"
     )
     skill_score: float = Field(description="The skill score of the candidate")
+
+class CVMatchBase(BaseModel):
+    cv_id: str = Field(description="The id of the candidate")
+    job_id: str = Field(description="The id of the job")
+    matching_score: float = Field(description="The match score of the candidate")
+    reason: str = Field(description="The reason of the match score")
+
+class ListApplicantsBase(BaseModel):
+    applicants: list[CVMatchBase] = Field(description="The list of matched applicants")

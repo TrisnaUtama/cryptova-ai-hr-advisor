@@ -5,6 +5,7 @@ import logging
 import markdown
 
 from apps.job.models import JobCategory, Job
+from apps.job.tasks import match_cv_with_job
 from core.utils import LoginCheckMixin
 
 logger = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ class JobCreateView(LoginCheckMixin, View):
                     'company_name': company_name
                 }.items() if not value]
                 logger.warning(f"Missing required fields: {missing_fields}")
-                messages.error(request, 'Please fill in all required fields.')
+                # messages.error(request, 'Please fill in all required fields.')
                 return redirect('job_create')
 
             # Create new job posting
@@ -79,10 +80,11 @@ class JobCreateView(LoginCheckMixin, View):
             )
 
             logger.info(f"Job created successfully: {job.id}")
-            messages.success(request, 'Job posting created successfully!')
+            # messages.success(request, 'Job posting created successfully!')
+            match_cv_with_job(job.id)
             return redirect('job_list')
 
         except Exception as e:
             logger.error(f"Error creating job posting: {str(e)}", exc_info=True)
-            messages.error(request, f'Error creating job posting: {str(e)}')
+            # messages.error(request, f'Error creating job posting: {str(e)}')
             return redirect('job_create')

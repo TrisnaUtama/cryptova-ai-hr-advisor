@@ -18,6 +18,7 @@ from langchain_openai.embeddings import (
 )
 
 from .utils import delete_cv_from_sql_and_vector_db, extract_and_save_cv_data
+from apps.job.models import JobCategory
 
 from .models import (
     CV,
@@ -113,8 +114,9 @@ def process_cv(document: CV):
             return
 
         # Continue processing if it is a CV: Extract structured data
+        categories = JobCategory.objects.all().values("name", "description")
         pm_extract = PromptManager()
-        pm_extract.add_message("system", CV_PARSER)
+        pm_extract.add_message("system", CV_PARSER.format(job_categories=list(categories)))
         pm_extract.add_message("user", f"Extract information from this CV: {content}")
         cv_data_payload = pm_extract.generate_structured(CVBase)
 

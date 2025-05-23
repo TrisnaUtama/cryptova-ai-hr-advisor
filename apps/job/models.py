@@ -11,7 +11,7 @@ JOB_STATUS_CLOSED = 'open'
 JOB_STATUS_CHOICES = [
     (JOB_STATUS_CREATED, 'Created'),
     (JOB_STATUS_PROCESS, 'Process'),
-    (JOB_STATUS_CLOSED, 'Closed'),
+    (JOB_STATUS_CLOSED, 'Open'),
 ]
 
 class JobCategory(BaseModel):
