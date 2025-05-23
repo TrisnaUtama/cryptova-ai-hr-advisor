@@ -16,6 +16,7 @@ urlpatterns = [
     path("", include("apps.cv.urls")),
     path("", include("apps.dashboard.urls")),
     path("", include("apps.chat.urls")),
+    path("", include("apps.job.urls")),
     path('health/', health_check, name='health_check'),
 ]
 

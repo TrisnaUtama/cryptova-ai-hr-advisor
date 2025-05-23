@@ -151,7 +151,7 @@ class PromptManagerAgent:
                 if event.item.type == "tool_call_item":
                     yield {
                         "type": "tool_call",
-                        "content": "Tool was called"
+                        "content": event.item,
                     }
                 elif event.item.type == "tool_call_output_item":
                     yield {
@@ -159,7 +159,6 @@ class PromptManagerAgent:
                         "content": event.item.output
                     }
                 elif event.item.type == "message_output_item":
-                    print(event)
                     yield {
                         "type": "message",
                         "content": ItemHelpers.text_message_output(event.item),

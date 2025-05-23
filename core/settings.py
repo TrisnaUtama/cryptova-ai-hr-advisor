@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     "apps.cv",
     "apps.chat",
     "apps.dashboard",
+    "apps.job",
+    'django.contrib.humanize',
     "huey.contrib.djhuey",
     "channels",
 ]

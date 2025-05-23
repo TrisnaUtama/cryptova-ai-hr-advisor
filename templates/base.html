@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,6 +12,11 @@
       href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <style>
       .markdown-body pre,
       .markdown-body code {
@@ -48,6 +54,32 @@
         100% {
           background-size: 20% 100%, 20% 100%, 20% 100%;
         }
+      }
+      #description-body {
+        font-family: sans-serif;
+        line-height: 1.6;
+      }
+
+      #description-body h1,
+      #description-body h2,
+      #description-body h3 {
+        font-weight: bold;
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+      }
+
+      #description-body ul {
+        list-style-type: disc;
+        margin-left: 1.5em;
+        padding-left: 1em;
+      }
+
+      #description-body p {
+        margin-bottom: 1em;
+      }
+
+      #description-body li {
+        margin-bottom: 0.25em;
       }
     </style>
   </head>

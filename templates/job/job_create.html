@@ -1,0 +1,178 @@
+{% extends "base_sidebar.html" %} {% block title %}Create new job{% endblock title %}
+{% block sidebar_content %}
+<main class="flex-grow">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Create New Job Listing</h2>
+            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">
+                Back to Jobs
+            </button>
+        </div>
+
+        <form id="jobForm" class="space-y-6" action="{% url 'job_create' %}" method="post">
+            {% csrf_token %}
+            <!-- Basic Job Information -->
+            <div class="bg-gray-50 p-4 rounded-md">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">
+                    Basic Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Job Title <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="title" name="title" required
+                            class="w-full px-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g. Senior Software Engineer" />
+                    </div>
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="location" name="location" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g. Jakarta, Indonesia" />
+                    </div>
+                    <div class="col-span-2">
+                        <label for="job_category" class="block text-sm font-medium text-gray-700 mb-1">Job Category
+                            <span class="text-red-500">*</span></label>
+                        <select id="job_category" name="job_category" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salary Information -->
+            <div class="bg-gray-50 p-4 rounded-md">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">
+                    Salary Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="salary_min" class="block text-sm font-medium text-gray-700 mb-1">Minimum Salary
+                            <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500">Rp</span>
+                            </div>
+                            <input type="number" id="salary_min" name="salary_min" required
+                                class="w-full pl-10 pr-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g. 5000000" />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="salary_max" class="block text-sm font-medium text-gray-700 mb-1">Maximum Salary
+                            <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500">Rp</span>
+                            </div>
+                            <input type="number" id="salary_max" name="salary_max" required
+                                class="w-full pl-10 pr-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g. 8000000" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="bg-gray-50 p-4 rounded-md">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">Requirements</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="min_experience" class="block text-sm font-medium text-gray-700 mb-1">Minimum
+                            Experience <span class="text-red-500">*</span></label>
+                        <select id="min_experience" name="min_experience" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select experience level</option>
+                            <option value="Fresh Graduate">Fresh Graduate</option>
+                            <option value="< 1 tahun">Less than 1 year</option>
+                            <option value="1-3 tahun">1-3 years</option>
+                            <option value="3-5 tahun">3-5 years</option>
+                            <option value="5-10 tahun">5-10 years</option>
+                            <option value="> 10 tahun">More than 10 years</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="min_education" class="block text-sm font-medium text-gray-700 mb-1">Minimum
+                            Education <span class="text-red-500">*</span></label>
+                        <select id="min_education" name="min_education" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select education level</option>
+                            <option value="SMA/SMK">SMA/SMK</option>
+                            <option value="Diploma (D3)">Diploma (D3)</option>
+                            <option value="Sarjana (S1)">Sarjana (S1)</option>
+                            <option value="Magister (S2)">Magister (S2)</option>
+                            <option value="Doktor (S3)">Doktor (S3)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Information -->
+            <div class="bg-gray-50 p-4 rounded-md">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">
+                    Company Information
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="company_name" class="block text-sm font-medium text-gray-700 mb-1">Company Name
+                            <span class="text-red-500">*</span></label>
+                        <input type="text" id="company_name" name="company_name" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g. PT Example Indonesia" />
+                    </div>
+                    <div>
+                        <label for="company_description" class="block text-sm font-medium text-gray-700 mb-1">Company
+                            Description</label>
+                        <textarea id="company_description" name="company_description" rows="4"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Brief description about the company..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Description with Markdown Editor -->
+            <div class="bg-gray-50 p-4 rounded-md">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">
+                    Job Description <span class="text-red-500">*</span>
+                </h3>
+                <textarea id="description" name="description"></textarea>
+                <div class="text-sm text-gray-500">
+                    Include details about responsibilities, qualifications, benefits, and
+                    application process.
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3">
+                <button type="submit"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Publish Job
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+<script>
+    var simpleMDE = new SimpleMDE({
+        element: document.getElementById("description"),
+        spellChecker: false,
+    });
+
+    // Custom validation for description
+    document.getElementById('jobForm').addEventListener('submit', function (e) {
+        var value = simpleMDE.value().trim();
+        if (!value) {
+            alert('Job Description is required.');
+            simpleMDE.codemirror.focus();
+            e.preventDefault();
+            return false;
+        }
+        // Set the value to the textarea for server-side
+        document.getElementById('description').value = value;
+    });
+</script>
+{% endblock sidebar_content %}

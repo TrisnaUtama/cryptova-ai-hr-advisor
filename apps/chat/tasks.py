@@ -155,6 +155,9 @@ def process_chat(message, session_id, user_id):
                             session.id,
                             {"message": content, "done": True}
                         )
+                    elif event["type"] == "tool_call":
+                        content = event["content"]
+                        print(content)
             except InputGuardrailTripwireTriggered:
                 await create_chat(session, user, "assistant", warning_msg)
                 await sync_to_async(send_chat_message)(session.id, warning_msg)

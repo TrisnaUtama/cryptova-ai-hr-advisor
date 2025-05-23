@@ -1,0 +1,70 @@
+{% extends "base_sidebar.html" %} {% block title %}Job List{% endblock title %}
+{% load humanize %} {% block sidebar_content %}
+<div class="w-full flex flex-col space-y-4">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-gray-900">
+      Job List
+      <span class="text-gray-700 text-sm font-medium"
+        >{{ jobs.count }} Jobs</span
+      >
+    </h1>
+    <a
+      href="{% url 'job_create' %}"
+      class="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+    >
+      <i class="fa-solid fa-plus"></i>
+      Create new job
+    </a>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Job Card 1 -->
+    {% if jobs %} {% for job in jobs %} {% for job in jobs %}
+    <a href="{% url 'job_detail' job.id %}">
+      <div class="bg-white rounded-lg shadow-sm p-6 relative">
+        <div class="flex items-start justify-between w-full">
+          <h2 class="text-lg font-medium text-gray-800">
+            {{ job.title }} ({{job.job_category.name}})
+          </h2>
+          {% if job.status %}
+          <span
+            class="inline-flex text-xs px-2 border rounded-md py-1 font-semibold {% if job.status == 'created' %} bg-gray-100 text-gray-800 border-gray-300 {% elif job.status == 'process' %} bg-yellow-100 text-yellow-800 border-yellow-300 {% elif job.status == 'open' %} bg-green-100 text-green-800 border-green-300 {% endif %}"
+          >
+            {{ job.status|upper }}
+          </span>
+          {% endif %}
+        </div>
+        <div class="text-blue-500 font-medium mb-2">
+          IDR {{ job.salary_min|intcomma }} - {{ job.salary_max|intcomma }}
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm"
+            >{{ job.min_experience }}</span
+          >
+          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm"
+            >{{ job.min_education }}</span
+          >
+        </div>
+
+        <div class="border-t border-gray-100 pt-4">
+          <div class="flex items-center mb-2 gap-2">
+            <i class="fa-solid fa-building-user text-gray-600"></i>
+            <span>{{ job.company_name }}</span>
+          </div>
+          <div class="flex items-center text-gray-600 text-sm gap-2">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>{{ job.location }}</span>
+          </div>
+        </div>
+
+        <div class="mt-4 text-green-600 text-sm">
+          {{ job.created_at|timesince }} ago
+        </div>
+      </div>
+    </a>
+    {% endfor %} {% endfor %} {% else %}
+    <div class="text-gray-700 font-medium">No jobs found</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock sidebar_content %}

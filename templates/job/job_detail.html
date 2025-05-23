@@ -1,0 +1,176 @@
+{% extends 'base_sidebar.html' %}
+{% load humanize %}
+{% block title %} Job Detail {% endblock %}
+
+{% block sidebar_content %}
+<div class="grid grid-cols-12 gap-4">
+    <div class="col-span-8">
+        <div class="flex flex-col space-y-4">
+            <h1 class="text-2xl font-bold">Job Detail</h1>
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex-grow">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ job.title }} ({{ job.job_category.name }})</h1>
+                    <div class="flex items-center mb-3">
+                        <div class="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <span>{{ job.company_name }}</span>
+                    </div>
+                    <div class="flex items-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-gray-700">IDR {{ job.salary_min|intcomma }} -
+                            {{ job.salary_max|intcomma}}/Bulan</span>
+                    </div>
+                    <div class="flex items-center mb-3">
+                        <i class="fa-solid fa-location-dot mr-3 text-gray-500"></i>
+                        <span>{{ job.location }}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span class="text-gray-700">{{ job.min_education }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-700">Min. Experience {{ job.min_experience }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-gray-500 text-sm mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-green-600">Updated {{ job.updated_at|timesince }} ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button
+                        class="border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        onclick="switchTab('description')">
+                        Description
+                    </button>
+                    <button
+                        class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        onclick="switchTab('candidates')">
+                        Matched Candidates
+                    </button>
+                </nav>
+            </div>
+
+            <div id="description-tab" class="mt-4">
+                <div id="description-body">
+                    {{ description_html|safe }}
+                </div>
+            </div>
+
+            <div id="candidates-tab" class="mt-4 hidden">
+                {% if job.jobapplication_set.all %}
+                <div class="space-y-4">
+                    {% for application in job.jobapplication_set.all %}
+                    <div class="p-4 hover:bg-blue-50 transition-colors duration-150 border-b border-gray-300">
+                        <div class="flex-grow">
+                            <div class="flex flex-wrap justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">Alexander Smith</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-sm text-gray-600 mr-3">Senior Software Engineer</span>
+                                    </div>
+                                </div>
+                                <p></p>
+                                <div class="flex items-center">
+                                    <div class="flex flex-col items-end mr-4">
+                                        <div class="text-sm font-medium text-gray-900">Matching Score</div>
+                                        <div class="flex items-center">
+                                            <div class="w-20 h-2 bg-gray-200 rounded-full mr-2">
+                                                <div class="h-2 bg-green-500 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                            <span class="text-green-600 font-semibold">80.0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p>
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
+                                </p>
+                            </div>
+                            <div class="mt-3">
+                                <div class="text-sm text-gray-500">
+                                    <span class="inline-flex items-center mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-400"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        San Francisco, CA
+                                    </span>
+                                    <span class="inline-flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-400"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                        alex.smith@example.com
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <p class="text-gray-500">No candidates have applied yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <script>
+            function switchTab(tabName) {
+                // Hide all tabs
+                document.getElementById('description-tab').classList.add('hidden');
+                document.getElementById('candidates-tab').classList.add('hidden');
+
+                // Show selected tab
+                document.getElementById(tabName + '-tab').classList.remove('hidden');
+
+                // Update button styles
+                const buttons = document.querySelectorAll('nav button');
+                buttons.forEach(button => {
+                    if (button.textContent.toLowerCase().includes(tabName)) {
+                        button.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                        button.classList.add('border-blue-500', 'text-blue-600');
+                    } else {
+                        button.classList.remove('border-blue-500', 'text-blue-600');
+                        button.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    }
+                });
+            }
+        </script>
+    </div>
+</div>
+{% endblock %}
