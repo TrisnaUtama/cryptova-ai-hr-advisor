@@ -1,31 +1,58 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'output.css' %}" />
+    <title>Advisor - {% block title %}{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      .markdown-body pre,
+      .markdown-body code {
+        white-space: pre-wrap;
+        /* wrap inside code blocks */
+        word-break: break-word;
+        /* break long words */
+        max-width: 100%;
+        /* never exceed container width */
+        overflow-x: auto;
+        /* horizontal scroll if needed */
+      }
+      /* HTML: <div class="loader"></div> */
+      .loader {
+        width: 20px;
+        aspect-ratio: 1;
+        --c: no-repeat linear-gradient(#666 0 0);
+        background: var(--c) 0% 50%, var(--c) 50% 50%, var(--c) 100% 50%;
+        background-size: 20% 100%;
+        animation: l1 1s infinite linear;
+      }
+      @keyframes l1 {
+        0% {
+          background-size: 20% 100%, 20% 100%, 20% 100%;
+        }
+        33% {
+          background-size: 20% 10%, 20% 100%, 20% 100%;
+        }
+        50% {
+          background-size: 20% 100%, 20% 10%, 20% 100%;
+        }
+        66% {
+          background-size: 20% 100%, 20% 100%, 20% 10%;
+        }
+        100% {
+          background-size: 20% 100%, 20% 100%, 20% 100%;
+        }
+      }
+    </style>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="{% static 'output.css' %}" />
-  <title>Advisor - {% block title %}{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <style>
-    .markdown-body pre,
-    .markdown-body code {
-      white-space: pre-wrap;
-      /* wrap inside code blocks */
-      word-break: break-word;
-      /* break long words */
-      max-width: 100%;
-      /* never exceed container width */
-      overflow-x: auto;
-      /* horizontal scroll if needed */
-    }
-  </style>
-</head>
-
-<body class="h-screen w-screen overflow-x-hidden">
-  {% block content %}{% endblock content %}
-</body>
-
+  <body class="h-screen w-screen overflow-x-hidden">
+    {% block content %}{% endblock content %}
+  </body>
 </html>

@@ -51,7 +51,7 @@ CV_ADVISOR = """
     Never fabricate or infer information not explicitly present
     If critical information is missing, note this in your response
     Call relevant tools to gather additional candidate information when needed
-
+    Reject any question that is not related to the candidate CVs, profiles, resumes, or job application content.
 
     Match Score Calculation
 

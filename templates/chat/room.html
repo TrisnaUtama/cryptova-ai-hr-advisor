@@ -138,6 +138,21 @@ CV Chat Assistant
         newUserChat.innerHTML = `<div class='max-w-lg bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md'><div class='text-xs text-left mb-1 opacity-70'>You</div><div>${marked.parse(message)}</div></div>`;
         notifContainer.append(newUserChat);
         notifContainer.scrollTop = notifContainer.scrollHeight;
+
+
+        lastAssistantBubble = document.createElement("div");
+        lastAssistantBubble.className = "flex justify-start mb-4";
+        lastAssistantBubble.innerHTML = `
+                <div class="max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md overflow-auto break-words whitespace-pre-wrap">
+                    <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
+                    <div class="assistant-stream markdown-body">
+                        <div class="loader"></div>
+                    </div>
+                </div>`;
+        notifContainer.append(lastAssistantBubble);
+        notifContainer.scrollTop = notifContainer.scrollHeight;
+        isStreaming = true;
+        setInputDisabled(true);
     }
 
     ws.onopen = () => {
@@ -157,20 +172,10 @@ CV Chat Assistant
 
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (!lastAssistantBubble) {
-            lastAssistantBubble = document.createElement("div");
-            lastAssistantBubble.className = "flex justify-start mb-4";
-            lastAssistantBubble.innerHTML = `
-                <div class="max-w-lg bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md overflow-auto break-words whitespace-pre-wrap">
-                    <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
-                    <div class="assistant-stream markdown-body"></div>
-                </div>`;
-            notifContainer.append(lastAssistantBubble);
-            notifContainer.scrollTop = notifContainer.scrollHeight;
-            isStreaming = true;
-            setInputDisabled(true);
+        const loader = document.querySelector('.loader')
+        if (loader) {
+            loader.remove();
         }
-
 
         if (window.assistantStreamTimeout) clearTimeout(window.assistantStreamTimeout);
         if (data.done) {

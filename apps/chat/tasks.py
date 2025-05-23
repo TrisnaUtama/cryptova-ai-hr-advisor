@@ -2,14 +2,13 @@ from agents import GuardrailFunctionOutput, InputGuardrailTripwireTriggered, Run
 from huey.contrib.djhuey import task
 from apps.chat.models import Chat, ChatSession
 from django.contrib.auth import get_user_model
-from core.ai.prompt_manager import PromptManagerAgent
+from core.ai.prompt_manager import PromptManagerAgent, warning_msg
 from core.ai.system_prompt import CV_ADVISOR, GUARDRAILS_AGENT_PROMPT
 from core.ai.tools import get_list_of_cvs, get_cv_information, get_list_of_cv_match_with_job_description
 from core.methods import send_chat_message
 from openai import OpenAI
 import os
 import asyncio
-from openai.types.responses import ResponseTextDeltaEvent
 from asgiref.sync import sync_to_async
 import ast
 
@@ -134,6 +133,7 @@ def process_chat(message, session_id, user_id):
         async def process_stream():
             try:
                 async for event in agent.generate_stream():
+                    print(event)
                     if event["type"] == "raw_response_event":
                         data = event["data"]
                         token = data.delta
@@ -156,15 +156,6 @@ def process_chat(message, session_id, user_id):
                             {"message": content, "done": True}
                         )
             except InputGuardrailTripwireTriggered:
-                warning_msg = """
-                    I'm sorry, but I can only help with questions related to:
-                    - Candidate CVs and resumes  
-                    - Job qualifications and requirements
-                    - Skills, education, and experience evaluation
-                    - Candidate screening and job matching
-                    Please rephrase your question to focus on CV/resume-related topics.
-                """
-                
                 await create_chat(session, user, "assistant", warning_msg)
                 await sync_to_async(send_chat_message)(session.id, warning_msg)
 

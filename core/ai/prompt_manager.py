@@ -235,3 +235,13 @@ def convert_markdown_to_html(markdown_text):
         'def_list'
     ]
     return markdown.markdown(markdown_text, extensions=extensions)
+
+warning_msg = """```
+I'm sorry, but I can only help with questions related to:
+- Candidate CVs and resumes
+- Job qualifications and requirements
+- Skills, education, and experience evaluation
+- Candidate screening and job matching
+
+Please rephrase your question to focus on CV/resume-related topics.
+```"""
