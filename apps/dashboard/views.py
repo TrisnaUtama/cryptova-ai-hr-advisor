@@ -3,27 +3,28 @@ from django.views import View
 
 from core.utils import LoginCheckMixin
 
+from apps.cv.models import CV
+
+from .models import (
+    CvProcessedPerDay,
+    CvProcessedPerWeek,
+    CvScoreAvgPerWeek,
+    CvScoreDistribution,
+    CvUploadedPerDay,
+    CvUploadedPerWeek,
+)
+
 
 class DashboardView(LoginCheckMixin, View):
     def get(self, request):
-        from apps.cv.models import CV
-
-        from .models import (
-            CvProcessedPerDay,
-            CvProcessedPerWeek,
-            CvScoreAvgPerWeek,
-            CvScoreDistribution,
-            CvUploadedPerDay,
-            CvUploadedPerWeek,
-        )
 
         # Total CVs
-        total_cvs = CV.objects.count()
+        total_cvs = CV.objects.filter(user=request.user).count()
         # Total CVs difference (today - yesterday)
-        today = CvUploadedPerDay.objects.order_by("-day").first()
+        today = CvUploadedPerDay.objects.filter(user=request.user).order_by("-day").first()
         yesterday = (
-            CvUploadedPerDay.objects.order_by("-day")[1]
-            if CvUploadedPerDay.objects.count() > 1
+            CvUploadedPerDay.objects.filter(user=request.user).order_by("-day")[1]
+            if CvUploadedPerDay.objects.filter(user=request.user).count() > 1
             else None
         )
         total_cvs_difference = (
@@ -32,10 +33,10 @@ class DashboardView(LoginCheckMixin, View):
             else "+0"
         )
         # average score for last week
-        avg_score_obj = CvScoreAvgPerWeek.objects.order_by("-week").first()
+        avg_score_obj = CvScoreAvgPerWeek.objects.filter(user=request.user).order_by("-week").first()
         prev_avg_score_obj = (
-            CvScoreAvgPerWeek.objects.order_by("-week")[1]
-            if CvScoreAvgPerWeek.objects.count() > 1
+            CvScoreAvgPerWeek.objects.filter(user=request.user).order_by("-week")[1]
+            if CvScoreAvgPerWeek.objects.filter(user=request.user).count() > 1
             else None
         )
         avg_score = round(avg_score_obj.avg_score, 1) if avg_score_obj else 0
@@ -47,8 +48,8 @@ class DashboardView(LoginCheckMixin, View):
         # High scorers (score > 90)
         high_scorers = CV.objects.filter(overall_score__gte=90).count()
         # Processing rate (CV processed / uploaded this week)
-        week_uploaded = CvUploadedPerWeek.objects.order_by("-week").first()
-        week_processed = CvProcessedPerWeek.objects.order_by("-week").first()
+        week_uploaded = CvUploadedPerWeek.objects.filter(user=request.user).order_by("-week").first()
+        week_processed = CvProcessedPerWeek.objects.filter(user=request.user).order_by("-week").first()
         processing_rate = (
             round(
                 week_processed.total_processed / week_uploaded.total_uploaded * 100, 1
@@ -64,17 +65,17 @@ class DashboardView(LoginCheckMixin, View):
         gpa_weight = 20
         # Weekly data
         uploaded_cvs = list(
-            CvUploadedPerWeek.objects.order_by("week").values_list(
+            CvUploadedPerWeek.objects.filter(user=request.user).order_by("week").values_list(
                 "total_uploaded", flat=True
             )
         )
         processed_cvs = list(
-            CvProcessedPerWeek.objects.order_by("week").values_list(
+            CvProcessedPerWeek.objects.filter(user=request.user).order_by("week").values_list(
                 "total_processed", flat=True
             )
         )
         avg_scores = list(
-            CvScoreAvgPerWeek.objects.order_by("week").values_list(
+            CvScoreAvgPerWeek.objects.filter(user=request.user).order_by("week").values_list(
                 "avg_score", flat=True
             )
         )
@@ -84,24 +85,24 @@ class DashboardView(LoginCheckMixin, View):
         today = datetime.date.today()
         # Only 7 last weeks
         week_dates = list(
-            CvUploadedPerWeek.objects.order_by("-week").values_list("week", flat=True)[
+            CvUploadedPerWeek.objects.filter(user=request.user).order_by("-week").values_list("week", flat=True)[
                 :7
             ]
         )[::-1]
         week_labels = [d.strftime("%d/%m") for d in week_dates]
         # Daily data
         uploaded_cvs_per_day = list(
-            CvUploadedPerDay.objects.order_by("day").values_list(
+            CvUploadedPerDay.objects.filter(user=request.user).order_by("day").values_list(
                 "total_uploaded", flat=True
             )
         )
         parsed_cvs_per_day = list(
-            CvProcessedPerDay.objects.order_by("day").values_list(
+            CvProcessedPerDay.objects.filter(user=request.user).order_by("day").values_list(
                 "total_processed", flat=True
             )
         )
         # Top candidates (order by last 5 highest overall score)
-        top_candidates_qs = CV.objects.filter(overall_score__isnull=False).order_by(
+        top_candidates_qs = CV.objects.filter(user=request.user, overall_score__isnull=False).order_by(
             "-overall_score"
         )[:5]
         top_candidates = [
@@ -115,7 +116,7 @@ class DashboardView(LoginCheckMixin, View):
         ]
         # Score distribution (separate into 5 score buckets)
         score_dist_raw = dict(
-            CvScoreDistribution.objects.order_by("score_bucket").values_list(
+            CvScoreDistribution.objects.filter(user=request.user).order_by("score_bucket").values_list(
                 "score_bucket", "total"
             )
         )

@@ -8,17 +8,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. Total uploaded & processed cvs per day
+        # 1. Total uploaded & processed cvs per day (with user_id)
         migrations.RunSQL(
             """
             CREATE MATERIALIZED VIEW IF NOT EXISTS cv_uploaded_per_day AS
             SELECT
                 DATE(created_at) AS day,
+                user_id,
                 COUNT(*) AS total_uploaded
             FROM
                 cvs
             GROUP BY
-                DATE(created_at)
+                DATE(created_at), user_id
             ORDER BY
                 day DESC;
             """,
@@ -29,29 +30,31 @@ class Migration(migrations.Migration):
             CREATE MATERIALIZED VIEW IF NOT EXISTS cv_processed_per_day AS
             SELECT
                 DATE(created_at) AS day,
+                user_id,
                 COUNT(*) AS total_processed
             FROM
                 cvs
             WHERE
                 sync_status = 'completed'
             GROUP BY
-                DATE(created_at)
+                DATE(created_at), user_id
             ORDER BY
                 day DESC;
             """,
             reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_processed_per_day;",
         ),
-        # 2. Total uploaded & processed cvs per week
+        # 2. Total uploaded & processed cvs per week (with user_id)
         migrations.RunSQL(
             """
             CREATE MATERIALIZED VIEW IF NOT EXISTS cv_uploaded_per_week AS
             SELECT
                 DATE_TRUNC('week', created_at)::date AS week,
+                user_id,
                 COUNT(*) AS total_uploaded
             FROM
                 cvs
             GROUP BY
-                week
+                week, user_id
             ORDER BY
                 week DESC;
             """,
@@ -62,41 +65,44 @@ class Migration(migrations.Migration):
             CREATE MATERIALIZED VIEW IF NOT EXISTS cv_processed_per_week AS
             SELECT
                 DATE_TRUNC('week', created_at)::date AS week,
+                user_id,
                 COUNT(*) AS total_processed
             FROM
                 cvs
             WHERE
                 sync_status = 'completed'
             GROUP BY
-                week
+                week, user_id
             ORDER BY
                 week DESC;
             """,
             reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_processed_per_week;",
         ),
-        # 3. Average of cv score per week
+        # 3. Average of cv score per week (with user_id)
         migrations.RunSQL(
             """
             CREATE MATERIALIZED VIEW IF NOT EXISTS cv_score_avg_per_week AS
             SELECT
                 DATE_TRUNC('week', created_at)::date AS week,
+                user_id,
                 AVG(overall_score) AS avg_score
             FROM
                 cvs
             WHERE
                 sync_status = 'completed' AND overall_score IS NOT NULL
             GROUP BY
-                week
+                week, user_id
             ORDER BY
                 week DESC;
             """,
             reverse_sql="DROP MATERIALIZED VIEW IF EXISTS cv_score_avg_per_week;",
         ),
-        # 4. Score distribution (bucket 0-20, 21-40, dst)
+        # 4. Score distribution (not grouped by time, still add user_id)
         migrations.RunSQL(
             """
             CREATE MATERIALIZED VIEW IF NOT EXISTS cv_score_distribution AS
             SELECT
+                user_id,
                 width_bucket(overall_score, 0, 100, 5) AS score_bucket,
                 COUNT(*) AS total
             FROM
@@ -104,7 +110,7 @@ class Migration(migrations.Migration):
             WHERE
                 sync_status = 'completed' AND overall_score IS NOT NULL
             GROUP BY
-                score_bucket
+                user_id, score_bucket
             ORDER BY
                 score_bucket;
             """,
