@@ -1,13 +1,15 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
-from django.contrib import messages
-import logging
-import markdown
-
 from apps.job.models import JobCategory, Job
 from apps.job.tasks import match_cv_with_job
 from core.utils import LoginCheckMixin
 from apps.chat.models import ChatSession
+from apps.job.tasks import process_job_file
+import logging
+import markdown
+import tempfile
+
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -105,3 +107,28 @@ class JobCreateView(LoginCheckMixin, View):
             logger.error(f"Error creating job posting: {str(e)}", exc_info=True)
             # messages.error(request, f'Error creating job posting: {str(e)}')
             return redirect('job_create')
+
+class ProcessJobFileView(LoginCheckMixin, View):
+    def post(self, request):
+        try:
+            uploaded_file = request.FILES.get('job_file')
+            if not uploaded_file:
+                return JsonResponse({"error": "No file uploaded."}, status=400)
+
+            # Save file temporarily
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{uploaded_file.name}") as temp_file:
+                for chunk in uploaded_file.chunks():
+                    temp_file.write(chunk)
+                temp_file_path = temp_file.name
+
+            # Trigger async task
+            process_job_file(temp_file_path, uploaded_file.name, request.user.id)
+            
+            return JsonResponse({
+                "success": True,
+                "message": "Job file processing started. Please wait for completion notification."
+            })
+
+        except Exception as e:
+            logger.error(f"Error processing job file: {str(e)}", exc_info=True)
+            return JsonResponse({"error": f"Error processing file: {str(e)}"}, status=500)

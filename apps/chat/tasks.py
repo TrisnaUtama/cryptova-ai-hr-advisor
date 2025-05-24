@@ -187,11 +187,10 @@ def process_chat(message, session_id, user_id):
                         tool_call_output = content
                 
                 pm = PromptManager()
-                print(final_message)
-                print(tool_call_output)
                 pm.add_message(role="system", content=FOLLOWUP_ACTION_PROMPT)
                 pm.add_message(role="user", content=f"Conversation Response: {final_message} \n Candidate Data: {tool_call_output}")
                 result = pm.generate_structured(FollowupActionBase)
+                print(result.get("action"))
                 if result.get("action") != 'null':
                     print(last_chat)
                     last_chat.followup_action = result

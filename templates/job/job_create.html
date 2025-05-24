@@ -20,14 +20,14 @@
                     <div>
                         <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Job Title <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" id="title" name="title" required
+                        <input type="text" id="title" name="title" required value="{{ request.GET.title }}"
                             class="w-full px-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="e.g. Senior Software Engineer" />
                     </div>
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" id="location" name="location" required
+                        <input type="text" id="location" name="location" required value="{{ request.GET.location }}"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="e.g. Jakarta, Indonesia" />
                     </div>
@@ -37,7 +37,7 @@
                         <select id="job_category" name="job_category" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             {% for category in categories %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            <option value="{{ category.id }}" {% if category.name == request.GET.job_category %}selected{% endif %}>{{ category.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -57,7 +57,7 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-gray-500">Rp</span>
                             </div>
-                            <input type="number" id="salary_min" name="salary_min" required
+                            <input type="number" id="salary_min" name="salary_min" required value="{{ request.GET.salary_min }}"
                                 class="w-full pl-10 pr-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="e.g. 5000000" />
                         </div>
@@ -69,7 +69,7 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-gray-500">Rp</span>
                             </div>
-                            <input type="number" id="salary_max" name="salary_max" required
+                            <input type="number" id="salary_max" name="salary_max" required value="{{ request.GET.salary_max }}"
                                 class="w-full pl-10 pr-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="e.g. 8000000" />
                         </div>
@@ -87,12 +87,12 @@
                         <select id="min_experience" name="min_experience" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select experience level</option>
-                            <option value="Fresh Graduate">Fresh Graduate</option>
-                            <option value="< 1 tahun">Less than 1 year</option>
-                            <option value="1-3 tahun">1-3 years</option>
-                            <option value="3-5 tahun">3-5 years</option>
-                            <option value="5-10 tahun">5-10 years</option>
-                            <option value="> 10 tahun">More than 10 years</option>
+                            <option value="Fresh Graduate" {% if request.GET.min_experience == "Fresh Graduate" %}selected{% endif %}>Fresh Graduate</option>
+                            <option value="< 1 tahun" {% if request.GET.min_experience == "< 1 tahun" %}selected{% endif %}>Less than 1 year</option>
+                            <option value="1-3 tahun" {% if request.GET.min_experience == "1-3 tahun" %}selected{% endif %}>1-3 years</option>
+                            <option value="3-5 tahun" {% if request.GET.min_experience == "3-5 tahun" %}selected{% endif %}>3-5 years</option>
+                            <option value="5-10 tahun" {% if request.GET.min_experience == "5-10 tahun" %}selected{% endif %}>5-10 years</option>
+                            <option value="> 10 tahun" {% if request.GET.min_experience == "> 10 tahun" %}selected{% endif %}>More than 10 years</option>
                         </select>
                     </div>
                     <div>
@@ -101,11 +101,11 @@
                         <select id="min_education" name="min_education" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select education level</option>
-                            <option value="SMA/SMK">SMA/SMK</option>
-                            <option value="Diploma (D3)">Diploma (D3)</option>
-                            <option value="Sarjana (S1)">Sarjana (S1)</option>
-                            <option value="Magister (S2)">Magister (S2)</option>
-                            <option value="Doktor (S3)">Doktor (S3)</option>
+                            <option value="SMA/SMK" {% if request.GET.min_education == "SMA/SMK" %}selected{% endif %}>SMA/SMK</option>
+                            <option value="Diploma (D3)" {% if request.GET.min_education == "Diploma (D3)" %}selected{% endif %}>Diploma (D3)</option>
+                            <option value="Sarjana (S1)" {% if request.GET.min_education == "Sarjana (S1)" %}selected{% endif %}>Sarjana (S1)</option>
+                            <option value="Magister (S2)" {% if request.GET.min_education == "Magister (S2)" %}selected{% endif %}>Magister (S2)</option>
+                            <option value="Doktor (S3)" {% if request.GET.min_education == "Doktor (S3)" %}selected{% endif %}>Doktor (S3)</option>
                         </select>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                     <div>
                         <label for="company_name" class="block text-sm font-medium text-gray-700 mb-1">Company Name
                             <span class="text-red-500">*</span></label>
-                        <input type="text" id="company_name" name="company_name" required
+                        <input type="text" id="company_name" name="company_name" required value="{{ request.GET.company_name }}"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="e.g. PT Example Indonesia" />
                     </div>
@@ -129,7 +129,7 @@
                             Description</label>
                         <textarea id="company_description" name="company_description" rows="4"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Brief description about the company..."></textarea>
+                            placeholder="Brief description about the company...">{{ request.GET.company_description }}</textarea>
                     </div>
                 </div>
             </div>
@@ -161,6 +161,12 @@
         element: document.getElementById("description"),
         spellChecker: false,
     });
+
+    // Set initial value from query parameter
+    const initialDescription = "{{ request.GET.description|escapejs }}";
+    if (initialDescription) {
+        simpleMDE.value(initialDescription);
+    }
 
     // Custom validation for description
     document.getElementById('jobForm').addEventListener('submit', function (e) {

@@ -99,3 +99,17 @@ class FollowupActionBase(BaseModel):
     payload: FollowUpPayloadBase = Field(description="The payload to be sent to the candidate")
 
 
+class JobDescriptionBase(BaseModel):
+    title: str = Field(description="The job title")
+    description: str = Field(description="The detailed job description")
+    location: str = Field(description="The job location")
+    salary_min: float = Field(description="The minimum salary")
+    salary_max: float = Field(description="The maximum salary")
+    job_category_name: str = Field(description="The job category name")
+    min_experience: str = Field(description="The minimum experience requirement")
+    min_education: str = Field(description="The minimum education requirement")
+    company_name: str = Field(description="The company name")
+    company_description: str = Field(description="The company description")
+
+class JobDocumentCheck(BaseModel):
+    is_job_posting: bool = Field(description="Is the document a job posting?")

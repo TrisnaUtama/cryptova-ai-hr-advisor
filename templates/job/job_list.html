@@ -1,29 +1,100 @@
 {% extends "base_sidebar.html" %} {% block title %}Job List{% endblock title %}
-{% load humanize %} {% block sidebar_content %}
+{% load humanize %} 
+{% block sidebar_content %}
+<style>
+  #error-modal {
+    background: rgba(30,41,59,0.35);
+  }
+</style>
 <div class="w-full flex flex-col space-y-4">
+  <!-- Error Modal -->
+  <div id="error-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden !mb-0">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center">
+      <div class="text-red-600 mb-2">
+        <i class="fa-solid fa-circle-exclamation text-3xl"></i>
+      </div>
+      <div id="error-modal-message" class="text-center text-gray-800 mb-4"></div>
+      <button id="close-error-modal" class="mt-2 px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition cursor-pointer">
+        Close
+      </button>
+    </div>
+  </div>
   <div class="flex justify-between items-center">
     <h1 class="text-2xl font-bold text-gray-900">
-      Job List
-      <span class="text-gray-700 text-sm font-medium"
-        >{{ jobs.count }} Jobs</span
-      >
+      Job Postings
     </h1>
     <a
+      id="create-job-btn"
       href="{% url 'job_create' %}"
-      class="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+      class="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 transition-colors"
     >
       <i class="fa-solid fa-plus"></i>
-      Create new job
+      Create New Job
     </a>
   </div>
+
+  <!-- Job Description Upload Box -->
+  <div class="border bg-white rounded-xl border-gray-200 p-6 shadow-md">
+    <h2 class="text-lg font-semibold mb-4 text-gray-800">Upload Job Poster or Description</h2>
+    <p class="text-gray-500 mb-4">
+      Upload a job poster image or PDF of your job requirement. Our system will automatically extract the details and help you fill out the job creation form.
+      <br>
+      <span class="text-xs text-gray-400">Supported formats: PDF, JPG, PNG, DOC. Max size 10MB.</span>
+    </p>
+    
+    <form id="job-upload-form" method="post" enctype="multipart/form-data" action="{% url 'process_job_file' %}">
+      {% csrf_token %}
+      
+      <!-- Dropzone -->
+      <div id="job-drop-zone"
+        class="relative border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer p-6 flex flex-col items-center justify-center text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input id="job-file" name="job_file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+          class="absolute inset-0 opacity-0 z-10 cursor-pointer" />
+
+        <!-- Icon -->
+        <svg class="h-10 w-10 mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+          <path
+            d="M220-160q-24 0-42-18t-18-42v-113q0-12.75 8.68-21.38 8.67-8.62 21.5-8.62 12.82 0 21.32 8.62 8.5 8.63 8.5 21.38v113h520v-113q0-12.75 8.68-21.38 8.67-8.62 21.5-8.62 12.82 0 21.32-8.62 8.5 8.63 8.5 21.38v113q0 24-18 42t-42 18H220Zm230-524-99 99q-8.8 9-20.9 8.5-12.1-.5-21.49-9.5-8.61-9-8.61-21.5t9-21.5l150-150q5-5 10.13-7 5.14-2 11-2 5.87 0 10.87 2 5 2 10 7l151 151q9 9 9 21t-8.61 21q-9.39 9-21.89 9t-21.5-9l-99-98v341q0 12.75-8.68 21.37-8.67 8.63-21.5 8.63-12.82 0-21.32-8.63-8.5-8.62-8.5-21.37v-341Z" />
+        </svg>
+
+        <p class="font-medium text-gray-700 text-sm">Drag & drop your job poster or description here, or click to select a file</p>
+        <p class="text-gray-400 text-xs mt-1">PDF, Images, DOC • Max 10MB</p>
+      </div>
+
+      <!-- File Preview -->
+      <div id="job-file-preview" class="mt-4 hidden">
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div class="flex items-center">
+            <i class="fa-solid fa-file text-gray-500 mr-2"></i>
+            <span id="job-file-name" class="text-sm text-gray-700"></span>
+          </div>
+          <button id="process-create-job-btn" type="submit" class="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 trasition-colors cursor-pointer flex items-center gap-2">
+            <span class="btn-text">Process & Create Job</span>
+            <svg id="process-job-spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <circle class="opacity-75" cx="12" cy="12" r="6" stroke="currentColor" stroke-width="4" stroke-dasharray="12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {% if jobs.count > 0 %}
+  <div class="text-gray-600 text-sm">
+    <span class="font-medium">{{ jobs.count }}</span> 
+    {% if jobs.count == 1 %}job posting{% else %}job postings{% endif %} 
+    has uploaded
+  </div>
+  {% endif %}
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <!-- Job Card 1 -->
     {% if jobs %} {% for job in jobs %}
     <a href="{% url 'job_detail' job.id %}">
       <div class="bg-white rounded-lg shadow-sm p-6 relative">
         <div class="flex items-start justify-between w-full">
           <h2 class="text-lg font-medium text-gray-800">
-            {{ job.title }} ({{job.job_category.name}})
+            {{ job.title }} ({{ job.job_category.name }})
           </h2>
           {% if job.status %}
           <span
@@ -63,8 +134,200 @@
       </div>
     </a>
     {% endfor %}{% else %}
-    <div class="text-gray-700 font-medium">No jobs found</div>
+    <div class="col-span-2 text-center py-12 text-gray-500">
+      <i class="fa-solid fa-briefcase text-4xl mb-4 text-gray-300"></i>
+      <h3 class="text-lg font-medium mb-2">No job postings yet</h3>
+      <p class="mb-4">Create your first job posting to start finding the right candidates.</p>
+      <a href="{% url 'job_create' %}" class="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors">
+        <i class="fa-solid fa-plus mr-2"></i>
+        Create Your First Job
+      </a>
+    </div>
     {% endif %}
   </div>
 </div>
+
+<script>
+  // WebSocket connection for notifications
+  const ws = new WebSocket(`ws://${window.location.host}/ws/notifications/`);
+  
+  ws.onopen = () => console.log("WebSocket connected");
+  ws.onclose = () => console.log("WebSocket disconnected");
+
+  function showErrorModal(message) {
+    const modal = document.getElementById("error-modal");
+    const msg = document.getElementById("error-modal-message");
+    msg.textContent = message;
+    modal.classList.remove("hidden");
+  }
+  function hideErrorModal() {
+    document.getElementById("error-modal").classList.add("hidden");
+  }
+  document.getElementById("close-error-modal").onclick = hideErrorModal;
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    const message = data.message;
+    
+    console.log("Received notification:", message);
+    
+    // Handle job processing completion
+    if (message.type === "job_processed") {
+      hideSpinnerOnButton();
+      window.location.href = message.document_id; // redirect_url
+    }
+    
+    // Handle other notifications (processing updates)
+    if (message.type === "notification") {
+      // Optionally show spinner if processing
+      if (
+        message.content &&
+        (
+          message.content.toLowerCase().includes("processing") ||
+          message.content.toLowerCase().includes("uploaded") ||
+          message.content.toLowerCase().includes("ocr")
+        )
+      ) {
+        showSpinnerOnButton();
+      }
+      // Optionally hide spinner on error
+      if (
+        message.content &&
+        (
+          message.content.toLowerCase().includes("failed") ||
+          message.content.toLowerCase().includes("error")
+        )
+      ) {
+        hideSpinnerOnButton();
+      }
+    }
+
+    // Handle if the task is error
+    if(message.type === "error") {
+      showErrorModal(message.content || "File rejected: not a job posting.");
+      hideSpinnerOnButton();
+      const btn = document.getElementById("process-create-job-btn");
+      const createBtn = document.getElementById("create-job-btn");
+      const spinner = document.getElementById("process-job-spinner");
+      btn.disabled = false;
+      createBtn.disabled = false;
+      spinner.classList.add("hidden");
+    }
+  };
+
+  function showSpinnerOnButton() {
+    const btn = document.getElementById("process-create-job-btn");
+    const createBtn = document.getElementById("create-job-btn");
+    const spinner = document.getElementById("process-job-spinner");
+    if (btn) {
+      console.log("Disabling process-create-job-btn");
+      btn.disabled = true;
+      btn.setAttribute("disabled", "disabled");
+      btn.classList.add("opacity-60", "pointer-events-none");
+    }
+    if (createBtn) {
+      createBtn.classList.add("opacity-60", "pointer-events-none");
+      createBtn.setAttribute("aria-disabled", "true");
+    }
+    if (spinner) spinner.classList.remove("hidden");
+  }
+  function hideSpinnerOnButton() {
+    const btn = document.getElementById("process-create-job-btn");
+    const createBtn = document.getElementById("create-job-btn");
+    const spinner = document.getElementById("process-job-spinner");
+    if (btn) {
+      console.log("Enabling process-create-job-btn");
+      btn.disabled = false;
+      btn.removeAttribute("disabled");
+      btn.classList.remove("opacity-60", "pointer-events-none");
+    }
+    if (createBtn) {
+      createBtn.classList.remove("opacity-60", "pointer-events-none");
+      createBtn.removeAttribute("aria-disabled");
+    }
+    if (spinner) spinner.classList.add("hidden");
+  }
+
+  const jobDropZone = document.getElementById("job-drop-zone");
+  const jobFileInput = document.getElementById("job-file");
+  const jobFilePreview = document.getElementById("job-file-preview");
+  const jobFileName = document.getElementById("job-file-name");
+  let selectedJobFile = null;
+
+  function showJobFilePreview(file) {
+    selectedJobFile = file;
+    jobFileName.textContent = file.name;
+    jobFilePreview.classList.remove("hidden");
+  }
+
+  jobDropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    jobDropZone.classList.add("border-blue-300", "bg-blue-50");
+  });
+
+  jobDropZone.addEventListener("dragleave", () => {
+    jobDropZone.classList.remove("border-blue-300", "bg-blue-50");
+  });
+
+  jobDropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    jobDropZone.classList.remove("border-blue-300", "bg-blue-50");
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      showJobFilePreview(files[0]);
+    }
+  });
+
+  jobFileInput.addEventListener("change", (e) => {
+    if (e.target.files.length > 0) {
+      showJobFilePreview(e.target.files[0]);
+    }
+  });
+
+  document.getElementById("job-upload-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    
+    if (!selectedJobFile) {
+      showErrorModal("Please select a file first.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("job_file", selectedJobFile);
+    
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+    
+    // Show spinner on button and disable create job
+    showSpinnerOnButton();
+
+    const submitBtn = document.getElementById("process-create-job-btn");
+    const originalText = submitBtn.querySelector('.btn-text').textContent;
+    submitBtn.querySelector('.btn-text').textContent = "Processing...";
+
+    fetch(e.target.action, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrfToken },
+      body: formData,
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        selectedJobFile = null;
+        jobFileInput.value = "";
+      } else {
+        hideSpinnerOnButton();
+        submitBtn.querySelector('.btn-text').textContent = originalText;
+        showErrorModal(data.error || "Failed to process file.");
+      }
+    })
+    .catch(() => {
+      hideSpinnerOnButton();
+      submitBtn.querySelector('.btn-text').textContent = originalText;
+      showErrorModal("Error processing file.");
+    })
+    .finally(() => {
+      submitBtn.querySelector('.btn-text').textContent = originalText;
+    });
+  });
+</script>
 {% endblock sidebar_content %}
