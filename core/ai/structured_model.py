@@ -99,3 +99,6 @@ class JobDescriptionBase(BaseModel):
     min_education: str = Field(description="The minimum education requirement")
     company_name: str = Field(description="The company name")
     company_description: str = Field(description="The company description")
+
+class JobDocumentCheck(BaseModel):
+    is_job_posting: bool = Field(description="Is the document a job posting?")

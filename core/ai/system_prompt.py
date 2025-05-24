@@ -4,6 +4,14 @@ DOCUMENT_CHECKER = """
     If the document is not a CV, return false.
 """
 
+JOB_DOCUMENT_CHECKER = """
+    You are a job posting document checker.
+    Your task is to determine if the provided document is a job posting or job vacancy announcement.
+    If the document is a job posting, return true. If not, return false.
+    Only return true if the document clearly describes a job opening, job requirements, or a position to be filled.
+    If the document is a CV, company profile, or anything else, return false.
+"""
+
 CV_PARSER = """
     You are a CV parser that extracts structured information from resumes. 
     Extract detailed information following this structure:

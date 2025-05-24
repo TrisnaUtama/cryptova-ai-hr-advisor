@@ -172,6 +172,18 @@
         hideSpinnerOnButton();
       }
     }
+
+    // Handle if the task is error
+    if(message.type === "error") {
+      hideSpinnerOnButton();
+      const btn = document.getElementById("process-create-job-btn");
+      const createBtn = document.getElementById("create-job-btn");
+      const spinner = document.getElementById("process-job-spinner");
+      btn.disabled = false;
+      createBtn.disabled = false;
+      spinner.classList.add("hidden");
+      alert(message.content || "An error occurred while processing the job.");
+    }
   };
 
   function showSpinnerOnButton() {

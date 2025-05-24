@@ -9,8 +9,8 @@ from apps.job.models import JobApplication, JOB_STATUS_PROCESS, JOB_STATUS_CLOSE
 from apps.cv.utils import clean_null_bytes
 from urllib.parse import urlencode
 from core.ai.mistral import mistral
-from core.ai.system_prompt import JOB_DESCRIPTION_PARSER
-from core.ai.structured_model import JobDescriptionBase
+from core.ai.system_prompt import JOB_DESCRIPTION_PARSER, JOB_DOCUMENT_CHECKER
+from core.ai.structured_model import JobDescriptionBase, JobDocumentCheck
 from PIL import Image
 import os
 from core.methods import send_notification
@@ -92,7 +92,7 @@ def process_job_file(file_path, file_name, user_id):
             send_notification(
                 "notification", "Job file uploaded to Mistral", f"{file_name}"
             )
-        except Exception as e:
+        except Exception:
             send_notification(
                 "notification",
                 f"Failed to upload job file: {file_name}",
@@ -133,6 +133,20 @@ def process_job_file(file_path, file_name, user_id):
                 "error",
             )
             raise
+
+        # Document checker as guardrails
+        pm_check = PromptManager()
+        pm_check.add_message("system", JOB_DOCUMENT_CHECKER)
+        pm_check.add_message("user", f"Check if this is a job posting: {content}")
+        check_result = pm_check.generate_structured(JobDocumentCheck)
+
+        if not check_result.get("is_job_posting"):
+            send_notification(
+                "error",
+                "Uploaded file is not a job posting.",
+                f"{file_name} was rejected.",
+            )
+            return
 
         # Extract job information using AI
         categories = JobCategory.objects.all().values("name", "description")
@@ -176,7 +190,7 @@ def process_job_file(file_path, file_name, user_id):
     except Exception as e:
         print(f"Error processing job file {file_name}: {str(e)}")
         send_notification(
-            "notification",
+            "error",
             f"Job file processing failed: {file_name}",
             "error",
         )
