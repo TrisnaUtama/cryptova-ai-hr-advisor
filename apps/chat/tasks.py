@@ -86,6 +86,9 @@ def process_chat(message, session_id, user_id):
     async def save_session(session):
         await sync_to_async(session.save)()
 
+    async def update_last_chat(last_chat):
+        await sync_to_async(last_chat.save)()
+
     async def get_list_applicants(job):
         def process_applicants():
             list_applicants = job.jobapplication_set.all()
@@ -154,6 +157,7 @@ def process_chat(message, session_id, user_id):
 
         async def process_stream():
             try:
+                last_chat = None
                 tool_call_output = None  # Define outside the loop
                 final_message = ""
                 async for event in agent.generate_stream():
@@ -165,7 +169,7 @@ def process_chat(message, session_id, user_id):
                         final_message = event["content"]
                         raw_item = event["raw_item"]
 
-                        await create_chat(
+                        last_chat = await create_chat(
                             session=session,
                             user=user,
                             role="assistant",
@@ -188,11 +192,17 @@ def process_chat(message, session_id, user_id):
                 pm.add_message(role="system", content=FOLLOWUP_ACTION_PROMPT)
                 pm.add_message(role="user", content=f"Conversation Response: {final_message} \n Candidate Data: {tool_call_output}")
                 result = pm.generate_structured(FollowupActionBase)
-                
-                await sync_to_async(send_chat_message)(
-                    session.id,
-                    {"message": result, "done": True}
-                )
+                if result.get("action") != 'null':
+                    print(last_chat)
+                    last_chat.followup_action = result
+                    await update_last_chat(last_chat)
+                    print("send followup action")
+                    await sync_to_async(send_chat_message)(
+                        session.id,
+                        {"message": result, "done": True}
+                    )
+
+                print(result)
                 # You can use tool_call_output here after the stream is complete
                 if tool_call_output:
                     # Do something with the final tool_call_output

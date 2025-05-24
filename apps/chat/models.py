@@ -25,6 +25,7 @@ class Chat(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chats")
     role = models.CharField(max_length=50, null=True, blank=True)
     message = models.TextField(null=True, blank=True)
+    followup_action = models.JSONField(null=True, blank=True)
 
     class Meta:
         db_table = "chats"

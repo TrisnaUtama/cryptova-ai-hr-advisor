@@ -222,6 +222,20 @@ Detail {% endblock %} {% block sidebar_content %}
                             data-md="{{ chat.message|escapejs }}"></div>
                     </div>
                 </div>
+                {% if chat.followup_action %}
+                <div class="flex justify-start mb-4 mt-4">
+                    <div class="flex flex-col">
+                        <p class="mb-2 text-gray-500 text-sm">Follow up Action :</p>
+                        <div class="max-w-xs flex flex-col bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md"
+                            id="followup-content">
+                            This is a highly recommended candidate. Would you like to schedule an interview?
+                            <button type="button" onclick="openFollowupModal()"
+                                class="mt-2 text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Schedule
+                                Interview</button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
                 {% endif %}
                 {% empty %}
                 {% if session_id is None %}
@@ -241,6 +255,20 @@ Detail {% endblock %} {% block sidebar_content %}
             </div>
         </div>
     </div>
+    <div id="followup-modal" class="fixed inset-0 z-50 items-center justify-center bg-black/80 hidden">
+        <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-6 relative z-10">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">Follow Up Action Details</h2>
+                <button onclick="closeFollowupModal()" type="button" id="close-followup-modal"
+                    class="text-gray-400 hover:text-gray-700 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="followup-modal-content" class="mt-4">
+
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     document.querySelectorAll('#assistant-message').forEach(div => {
@@ -252,6 +280,8 @@ Detail {% endblock %} {% block sidebar_content %}
     });
 </script>
 <script>
+    let text = "Dear Michael Brown,\n\nThank you for your application for the Backend Developer role. After reviewing your qualifications, we're impressed with your solid experience in backend development using JavaScript(Node.js) and Go, as well as your skills in scalable backend architecture, API development, and database management.\n\nWe would like to invite you to an interview to discuss further how your background aligns with our needs.Please let us know your availability for the next week, and we'll arrange a convenient time.\n\nBest regards,\nHiring Team"
+    marked.parse(text)
     window.addEventListener('DOMContentLoaded', function () {
         var input = document.getElementById('question-input');
         if (input) input.focus();
@@ -260,6 +290,7 @@ Detail {% endblock %} {% block sidebar_content %}
         if (chatBox) {
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+
     });
 </script>
 <script>
@@ -273,6 +304,17 @@ Detail {% endblock %} {% block sidebar_content %}
     let isStreaming = false;
     let assistantStreamBuffer = "";
 
+    function openFollowupModal() {
+        const followupModal = document.getElementById("followup-modal")
+        followupModal.classList.remove("hidden")
+        followupModal.classList.add("flex")
+    }
+
+    function closeFollowupModal() {
+        const followupModal = document.getElementById("followup-modal")
+        followupModal.classList.add("hidden")
+        followupModal.classList.remove("flex")
+    }
 
     function setInputDisabled(disabled) {
         inputDom.disabled = disabled;
@@ -309,7 +351,9 @@ Detail {% endblock %} {% block sidebar_content %}
                 console.log(data.message.action)
                 if (data.message.action) {
                     const payloadAction = data.message.payload
-                    console.log(payloadAction)
+                    const cv_id = payloadAction.cv_id
+                    const message = data.message.message
+                    const interview_type = payloadAction.interview_type.replace("_", " ")
                     const followupContainer = document.createElement("div");
                     followupContainer.className = "flex justfify-end mb-4";
                     followupContainer.innerHTML = `
@@ -318,11 +362,38 @@ Detail {% endblock %} {% block sidebar_content %}
                             <div class="max-w-xs flex flex-col bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md"
                                 id="followup-content">
                                 This is a highly recommended candidate. Would you like to schedule an interview?
-                                <button class="mt-2 text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Schedule Interview</button>
+                                <button type="button" onclick="openFollowupModal()" class="mt-2 text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Schedule Interview</button>
                             </div>
                         </div>
                     `
                     notifContainer.append(followupContainer);
+
+                    const followUpModalContent = document.getElementById("followup-modal-content")
+                    followUpModalContent.innerHTML = `
+                         <p>We've found a highly recommended candidate for you. We recommend you to take action for schedule an ${interview_type} interview with candidate. </p>
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-yellow-700">
+                                            We still working on for directly schedule interview with candidate. But you can copy and
+                                            paste this body message for inviting the user manually through company email.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 bg-gray-300 p-4">
+                                ${marked.parse(message)}
+                            </div>
+                        </div>
+                    `
                 }
             } else {
                 // Do NOT initialize from innerHTML!
