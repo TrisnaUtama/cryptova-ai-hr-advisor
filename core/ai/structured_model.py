@@ -87,3 +87,15 @@ class JobMatchBase(BaseModel):
 
 class ListJobMatchesBase(BaseModel):
     jobs: list[JobMatchBase] = Field(description="The list of matched jobs for the candidate")
+
+class JobDescriptionBase(BaseModel):
+    title: str = Field(description="The job title")
+    description: str = Field(description="The detailed job description")
+    location: str = Field(description="The job location")
+    salary_min: float = Field(description="The minimum salary")
+    salary_max: float = Field(description="The maximum salary")
+    job_category_name: str = Field(description="The job category name")
+    min_experience: str = Field(description="The minimum experience requirement")
+    min_education: str = Field(description="The minimum education requirement")
+    company_name: str = Field(description="The company name")
+    company_description: str = Field(description="The company description")

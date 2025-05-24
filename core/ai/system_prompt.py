@@ -248,3 +248,35 @@ JOB_MATCHERS = """
     - Ensure scores accurately reflect the detailed analysis provided
     - Only return the list of jobs if matching_score is above 40%
 """
+
+JOB_DESCRIPTION_PARSER = """
+    You are a job description parser that extracts structured information from job postings. 
+    Extract detailed information following this structure:
+    - Basic info: job title, company name, location
+    - Salary information: minimum and maximum salary
+    - Requirements: minimum experience, minimum education
+    - Job description: detailed description of the role
+    - Company description: information about the company
+
+    For job category, you must choose the most relevant job category from the following list:
+    {job_categories}
+    
+    For experience level, use one of these values:
+    - "Fresh Graduate"
+    - "< 1 tahun" 
+    - "1-3 tahun"
+    - "3-5 tahun"
+    - "5-10 tahun"
+    - "> 10 tahun"
+
+    For education level, use one of these values:
+    - "SMA/SMK"
+    - "Diploma (D3)"
+    - "Sarjana (S1)"
+    - "Magister (S2)"
+    - "Doktor (S3)"
+
+    Extract salary as numbers without currency symbols or formatting.
+    
+    Ensure all data matches the expected format for job creation.
+"""
