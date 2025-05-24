@@ -314,6 +314,10 @@ def match_job_with_cv(cv_id):
 
         print(f"Jobs for CV {cv_id}: {jobs}")
 
+        if jobs.count() == 0:
+            logger.info(f"No open jobs found for CV {cv_id}, skipping job matching.")
+            return
+        
         job_list = []
         for job in jobs:
             job_dict = model_to_dict(job)
@@ -336,16 +340,17 @@ def match_job_with_cv(cv_id):
         for match in response.get("jobs", []):
             try:
                 job = Job.objects.get(id=clean_null_bytes(match.get("job_id")))
-                if float(match.get("matching_score", 0)) > 40:
-                    JobApplication.objects.get_or_create(
-                        job=job,
-                        cv=cv,
-                        defaults={
-                            "matching_score": match.get("matching_score"),
-                            "reason": clean_null_bytes(match.get("reason"))
-                        }
-                    )
+                JobApplication.objects.get_or_create(
+                    job=job,
+                    cv=cv,
+                    defaults={
+                        "matching_score": match.get("matching_score"),
+                        "reason": clean_null_bytes(match.get("reason"))
+                    }
+                )
+                    
             except Exception as e:
                 logger.error(f"Error creating JobApplication for CV {cv_id} and job {match.get('job_id')}: {e}")
+        
     except Exception as e:
         logger.error(f"Error in match_job_with_cv for CV {cv_id}: {e}")

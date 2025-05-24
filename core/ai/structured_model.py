@@ -87,3 +87,15 @@ class JobMatchBase(BaseModel):
 
 class ListJobMatchesBase(BaseModel):
     jobs: list[JobMatchBase] = Field(description="The list of matched jobs for the candidate")
+
+class FollowUpPayloadBase(BaseModel):
+    cv_id: str = Field(description="The id of the candidate")
+    priority: str = Field(description="The priority of the candidate")
+    interview_type: str = Field(description="The type of the interview")
+    
+class FollowupActionBase(BaseModel):
+    action: str = Field(description="The action to be taken")
+    message: str = Field(description="The message to be sent to the candidate")
+    payload: FollowUpPayloadBase = Field(description="The payload to be sent to the candidate")
+
+

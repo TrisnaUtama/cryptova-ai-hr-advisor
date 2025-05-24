@@ -3,16 +3,15 @@ from huey.contrib.djhuey import task
 from apps.chat.models import Chat, ChatSession
 from django.contrib.auth import get_user_model
 from apps.job.models import Job
-from core.ai.prompt_manager import PromptManagerAgent, warning_msg
-from core.ai.system_prompt import CV_ADVISOR, GUARDRAILS_AGENT_PROMPT
+from core.ai.prompt_manager import PromptManagerAgent, warning_msg, PromptManager
+from core.ai.system_prompt import CV_ADVISOR, GUARDRAILS_AGENT_PROMPT, FOLLOWUP_ACTION_PROMPT
 from core.ai.tools import get_list_of_cvs, get_cv_information, get_list_of_cv_match_with_job_description
+from core.ai.structured_model import FollowupActionBase
 from core.methods import send_chat_message
-from openai import OpenAI
 import os
 import asyncio
 from asgiref.sync import sync_to_async
 import ast
-
 
 # Define the guardrail function with @input_guardrail decorator
 @input_guardrail
@@ -92,11 +91,7 @@ def process_chat(message, session_id, user_id):
             list_applicants = job.jobapplication_set.all()
             list_id = []
             for applicant in list_applicants:
-                list_id.append({
-                    "user_id": {
-                        "$eq": applicant.cv.id
-                    }
-                })
+                list_id.append(applicant.cv.id)
             return list_id
             
         return await sync_to_async(process_applicants)()
@@ -109,15 +104,11 @@ def process_chat(message, session_id, user_id):
         job = await get_job(job_id)
 
         cv_id_list = await get_list_applicants(job)
-
-        query_filter = {
-            "$or": cv_id_list
-        }
         
         # Initialize agent
         agent = PromptManagerAgent(
             user_id=user_id,
-            query_filter=query_filter
+            list_cv_id=cv_id_list
         )
         agent.create_agent(
             name="Cryptova CV Advisor",
@@ -163,32 +154,50 @@ def process_chat(message, session_id, user_id):
 
         async def process_stream():
             try:
+                tool_call_output = None  # Define outside the loop
+                final_message = ""
                 async for event in agent.generate_stream():
-                    print(event)
                     if event["type"] == "raw_response_event":
                         data = event["data"]
                         token = data.delta
                         await sync_to_async(send_chat_message)(session.id, token)
                     elif event["type"] == "message":
-                        content = event["content"]
+                        final_message = event["content"]
                         raw_item = event["raw_item"]
 
                         await create_chat(
                             session=session,
                             user=user,
                             role="assistant",
-                            message=content
+                            message=final_message
                         )
                         agent.append_last_result(raw_item.model_dump())
                         session.last_result = agent.last_result
                         await save_session(session)
                         await sync_to_async(send_chat_message)(
                             session.id,
-                            {"message": content, "done": True}
+                            {"message": final_message, "done": True}
                         )
-                    elif event["type"] == "tool_call":
+                    elif event["type"] == "tool_output":
                         content = event["content"]
-                        print(content)
+                        tool_call_output = content
+                
+                pm = PromptManager()
+                print(final_message)
+                print(tool_call_output)
+                pm.add_message(role="system", content=FOLLOWUP_ACTION_PROMPT)
+                pm.add_message(role="user", content=f"Conversation Response: {final_message} \n Candidate Data: {tool_call_output}")
+                result = pm.generate_structured(FollowupActionBase)
+                
+                await sync_to_async(send_chat_message)(
+                    session.id,
+                    {"message": result, "done": True}
+                )
+                # You can use tool_call_output here after the stream is complete
+                if tool_call_output:
+                    # Do something with the final tool_call_output
+                    pass
+                    
             except InputGuardrailTripwireTriggered:
                 await create_chat(session, user, "assistant", warning_msg)
                 await sync_to_async(send_chat_message)(session.id, warning_msg)

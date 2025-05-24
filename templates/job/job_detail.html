@@ -208,7 +208,7 @@ Detail {% endblock %} {% block sidebar_content %}
                 </div>
                 {% for chat in chats %}
                 {% if chat.role == 'user' or chat.role == None %}
-                <div class="flex justify-end mb-4">
+                <div class="flex justify-end mb-4 mt-4">
                     <div class="max-w-xs bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md">
                         <div class="text-xs text-left mb-1 opacity-70">You</div>
                         <div>{{ chat.message }}</div>
@@ -273,6 +273,18 @@ Detail {% endblock %} {% block sidebar_content %}
     let isStreaming = false;
     let assistantStreamBuffer = "";
 
+
+    function setInputDisabled(disabled) {
+        inputDom.disabled = disabled;
+        sendBtn.disabled = disabled;
+        if (disabled) {
+            sendBtn.classList.add("opacity-50", "cursor-not-allowed");
+        } else {
+            sendBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            inputDom.focus();
+        }
+    }
+
     function initializeWebSocket(sessionId) {
         console.log('Initializing WebSocket with sessionId:', sessionId);
         ws = new WebSocket(`ws://${window.location.host}/ws/chat/${sessionId}/`);
@@ -289,22 +301,39 @@ Detail {% endblock %} {% block sidebar_content %}
             if (loader) {
                 loader.remove();
             }
-
             if (data.done) {
                 lastAssistantBubble = null;
                 isStreaming = false;
                 setInputDisabled(false);
                 assistantStreamBuffer = "";
+                console.log(data.message.action)
+                if (data.message.action) {
+                    const payloadAction = data.message.payload
+                    console.log(payloadAction)
+                    const followupContainer = document.createElement("div");
+                    followupContainer.className = "flex justfify-end mb-4";
+                    followupContainer.innerHTML = `
+                        <div class="flex flex-col">
+                            <p class="mb-2 text-gray-500 text-sm">Follow up Action :</p>
+                            <div class="max-w-xs flex flex-col bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md"
+                                id="followup-content">
+                                This is a highly recommended candidate. Would you like to schedule an interview?
+                                <button class="mt-2 text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Schedule Interview</button>
+                            </div>
+                        </div>
+                    `
+                    notifContainer.append(followupContainer);
+                }
             } else {
                 // Do NOT initialize from innerHTML!
                 assistantStreamBuffer += data.message; // accumulate tokens as plain text
                 lastAssistantBubble.querySelector('.assistant-stream').innerHTML = marked.parse(assistantStreamBuffer); // render the full message
                 notifContainer.scrollTop = notifContainer.scrollHeight;
-                window.assistantStreamTimeout = setTimeout(() => {
-                    lastAssistantBubble = null;
-                    isStreaming = false;
-                    setInputDisabled(false);
-                }, 3000);
+                // window.assistantStreamTimeout = setTimeout(() => {
+                //     lastAssistantBubble = null;
+                //     isStreaming = false;
+                //     setInputDisabled(false);
+                // }, 3000);
             }
         };
 
@@ -322,17 +351,6 @@ Detail {% endblock %} {% block sidebar_content %}
         };
     }
 
-    function setInputDisabled(disabled) {
-        inputDom.disabled = disabled;
-        sendBtn.disabled = disabled;
-        if (disabled) {
-            sendBtn.classList.add("opacity-50", "cursor-not-allowed");
-        } else {
-            sendBtn.classList.remove("opacity-50", "cursor-not-allowed");
-            inputDom.focus();
-        }
-    }
-
     function sendMessage() {
         const message = inputDom.value;
         if (isStreaming) return;
@@ -342,8 +360,8 @@ Detail {% endblock %} {% block sidebar_content %}
         // Appear user message
         inputDom.value = '';
         const newUserChat = document.createElement("div");
-        newUserChat.className = "flex justify-end mb-4 mt-2";
-        newUserChat.innerHTML = `<div class='max-w-lg bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md'><div class='text-xs text-left mb-1 opacity-70'>You</div><div>${marked.parse(message)}</div></div>`;
+        newUserChat.className = "flex justify-end mb-4 mt-4";
+        newUserChat.innerHTML = `<div class='max-w-xs bg-gray-900 text-white rounded-2xl px-5 py-3 shadow-md'><div class='text-xs text-left mb-1 opacity-70'>You</div><div>${marked.parse(message)}</div></div>`;
         notifContainer.append(newUserChat);
         notifContainer.scrollTop = notifContainer.scrollHeight;
 

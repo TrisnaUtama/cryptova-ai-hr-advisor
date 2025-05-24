@@ -58,7 +58,7 @@ class PromptManagerAgent:
         thread_id: str = None,
         last_result: list = [],
         user_id: int = None,
-        query_filter: dict = None
+        list_cv_id: list = None
     ):
         self.messages = messages
         self.model = model
@@ -70,7 +70,7 @@ class PromptManagerAgent:
         if agent_id:
             self.agent = Agent.load(agent_id)
         self.user_id = user_id
-        self.query_filter = query_filter
+        self.list_cv_id = list_cv_id
     def add_message(self, role: str, content: str):
         self.messages.append({"role": role, "content": content})
 
@@ -128,7 +128,7 @@ class PromptManagerAgent:
                 input=conversation_input,
                 context={
                     "user_id": self.user_id,
-                    "query_filter": self.query_filter
+                    "list_cv_id": self.list_cv_id
                 },
             )
         else:
@@ -151,11 +151,13 @@ class PromptManagerAgent:
                 }
             elif event.type == "run_item_stream_event":
                 if event.item.type == "tool_call_item":
+                    print("Tool call event: ", event.item)
                     yield {
                         "type": "tool_call",
                         "content": event.item,
                     }
                 elif event.item.type == "tool_call_output_item":
+                    print("Tool output event: ", event.item.output)
                     yield {
                         "type": "tool_output",
                         "content": event.item.output
