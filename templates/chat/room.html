@@ -33,11 +33,13 @@ CV Chat Assistant
     </div>
     <div class="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg border border-gray-200 p-6 mb-4 max-h-[calc(100vh-280px)]"
         id="chat-messages">
+        {% if session_id is None %}
         <div class="max-w-lg bg-gray-200 text-gray-800 rounded-2xl px-5 py-3 shadow-md">
             <div class="text-xs text-left mb-1 opacity-70">CV-Insight-AI</div>
             <div>Hello! I'm CV-Insight-AI, your assistant for analyzing candidate CVs. How can I help you today?
             </div>
         </div>
+        {% endif %}
         {% for chat in chats %}
         {% if chat.role == 'user' or chat.role == None %}
         <div class="flex justify-end mb-4">
@@ -54,10 +56,6 @@ CV Chat Assistant
                     data-md="{{ chat.message|escapejs }}"></div>
             </div>
         </div>
-        {% endif %}
-        {% empty %}
-        {% if session_id is None %}
-        <div class="text-center text-gray-400">No chat yet. Start a conversation below!</div>
         {% endif %}
         {% endfor %}
     </div>
