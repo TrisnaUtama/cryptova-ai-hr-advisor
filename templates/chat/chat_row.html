@@ -1,10 +1,12 @@
 <tr>
-    <td class="py-3 px-4">{{ session.created_at }}</td>
-    <td class="py-3 px-4">{{ session.updated_at }}</td>
-    <td class="py-3 px-4">
-        <a href="{% url 'chat' %}?session_id={{ session.id }}"
-           class="inline-flex items-center px-3 py-2 rounded bg-gray-900 text-white text-xs font-medium hover:bg-gray-700 transition">
-            <i class="fas fa-comments mr-2"></i> Open
-        </a>
-    </td>
+  <td class="py-3 px-4">{{ session.created_at }}</td>
+  <td class="py-3 px-4">{{ session.updated_at }}</td>
+  <td class="py-3 px-4">
+    <a
+      href="{% url 'job_detail' job_id %}?session_id={{ session.id }}"
+      class="inline-flex items-center px-3 py-2 rounded bg-gray-900 text-white text-xs font-medium hover:bg-gray-700 transition"
+    >
+      <i class="fas fa-comments mr-2"></i> Open
+    </a>
+  </td>
 </tr>

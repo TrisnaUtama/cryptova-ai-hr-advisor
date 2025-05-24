@@ -60,6 +60,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Support both string and dict message
         msg = event["message"]
         if isinstance(msg, dict):
+            print(msg)
             await self.send(
                 text_data=json.dumps(
                     {"message": msg["message"], "done": msg.get("done", False)}

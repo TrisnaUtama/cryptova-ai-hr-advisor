@@ -7,7 +7,7 @@ import markdown
 from apps.job.models import JobCategory, Job
 from apps.job.tasks import match_cv_with_job
 from core.utils import LoginCheckMixin
-
+from apps.chat.models import ChatSession
 logger = logging.getLogger(__name__)
 
 # Create your views here.
@@ -19,8 +19,14 @@ class JobListView(LoginCheckMixin, View):
 class JobDetailView(LoginCheckMixin, View):
     def get(self, request, pk):
         job = Job.objects.get(id=pk)
+        session_id = request.GET.get("session_id")
+        if session_id:
+            session = ChatSession.objects.get(id=session_id, user=request.user)
+            chats = list(session.chats.order_by("created_at"))
+        else:
+            chats = []
         description_html = markdown.markdown(job.description)
-        return render(request, 'job/job_detail.html', {'job': job, 'description_html': description_html})
+        return render(request, 'job/job_detail.html', {'job': job, 'description_html': description_html, 'chats': chats, 'session_id': session_id})
 
 class JobCreateView(LoginCheckMixin, View):
     def get(self, request):
