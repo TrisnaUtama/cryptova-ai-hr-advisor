@@ -19,6 +19,17 @@ class JobListView(LoginCheckMixin, View):
 class JobDetailView(LoginCheckMixin, View):
     def get(self, request, pk):
         job = Job.objects.get(id=pk)
+        cv_id_list = []
+        list_applicants = job.jobapplication_set.all()
+        for applicant in list_applicants:
+            cv_id_list.append({
+                "user_id" : {
+                    "$eq": applicant.cv.id
+                }
+            })
+
+            print(cv_id_list)
+        
         session_id = request.GET.get("session_id")
         if session_id:
             session = ChatSession.objects.get(id=session_id, user=request.user)

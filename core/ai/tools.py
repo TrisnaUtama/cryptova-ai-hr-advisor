@@ -7,15 +7,23 @@ from core.ai.chroma import chroma, openai_ef
 from typing import Any
 
 @function_tool()
-async def get_list_of_cvs(ctx: RunContextWrapper[Any]):
+async def get_list_of_cvs(ctx: RunContextWrapper[Any], query: str):
     """Get a list of all CVs
     
         Args:
             params (any): The parameters to pass to the function
     """
-    user_id = ctx.context["user_id"]
-    cvs = await sync_to_async(list)(CV.objects.filter(user_id=user_id))
-    return [model_to_dict(cv) for cv in cvs]
+    query_filter = ctx.context["query_filter"]
+    collection = chroma.get_collection(name=CV_COLLECTION_NAME, embedding_function=openai_ef)
+    result = collection.query(query_texts=[query], n_results=20, where=query_filter, include=["documents", "metadatas"])
+    context = ""
+    for doc in result["documents"]:
+        context += doc[0]
+    print(result)
+    return {
+        "context": context,
+        "metadata": result["metadatas"]
+    }
 
 @function_tool()
 async def get_cv_information(ctx: RunContextWrapper[Any],query: str, n_result: int = 1):

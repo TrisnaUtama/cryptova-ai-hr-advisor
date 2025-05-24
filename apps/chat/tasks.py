@@ -2,6 +2,7 @@ from agents import GuardrailFunctionOutput, InputGuardrailTripwireTriggered, Run
 from huey.contrib.djhuey import task
 from apps.chat.models import Chat, ChatSession
 from django.contrib.auth import get_user_model
+from apps.job.models import Job
 from core.ai.prompt_manager import PromptManagerAgent, warning_msg
 from core.ai.system_prompt import CV_ADVISOR, GUARDRAILS_AGENT_PROMPT
 from core.ai.tools import get_list_of_cvs, get_cv_information, get_list_of_cv_match_with_job_description
@@ -52,9 +53,16 @@ async def chat_guardrail(ctx, agent, input):
 @task()
 def process_chat(message, session_id, user_id):
     User = get_user_model()
+    job = None
+    cv_id_list = []
     
     async def get_user():
         return await sync_to_async(User.objects.get)(id=user_id)
+    
+    async def get_job(job_id):
+        if job_id:
+            return await sync_to_async(Job.objects.get)(id=job_id)
+        return None
     
     async def get_or_create_session(user):
         if session_id:
@@ -78,14 +86,38 @@ def process_chat(message, session_id, user_id):
     
     async def save_session(session):
         await sync_to_async(session.save)()
+
+    async def get_list_applicants(job):
+        def process_applicants():
+            list_applicants = job.jobapplication_set.all()
+            list_id = []
+            for applicant in list_applicants:
+                list_id.append({
+                    "user_id": {
+                        "$eq": applicant.cv.id
+                    }
+                })
+            return list_id
+            
+        return await sync_to_async(process_applicants)()
     
     async def main(user_id, message):
         # Get user
         user = await get_user()
+        session = await get_or_create_session(user)
+        job_id = session.job_id
+        job = await get_job(job_id)
+
+        cv_id_list = await get_list_applicants(job)
+
+        query_filter = {
+            "$or": cv_id_list
+        }
         
         # Initialize agent
         agent = PromptManagerAgent(
-            user_id=user_id
+            user_id=user_id,
+            query_filter=query_filter
         )
         agent.create_agent(
             name="Cryptova CV Advisor",
@@ -99,7 +131,6 @@ def process_chat(message, session_id, user_id):
         agent.add_guardrail(chat_guardrail)
 
         # Get or create session
-        session = await get_or_create_session(user)
         agent.set_thread_id(session.id)
         
         if session.last_result:

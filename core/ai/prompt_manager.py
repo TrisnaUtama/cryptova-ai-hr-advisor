@@ -57,7 +57,8 @@ class PromptManagerAgent:
         agent_id: str = None,
         thread_id: str = None,
         last_result: list = [],
-        user_id: int = None
+        user_id: int = None,
+        query_filter: dict = None
     ):
         self.messages = messages
         self.model = model
@@ -69,7 +70,7 @@ class PromptManagerAgent:
         if agent_id:
             self.agent = Agent.load(agent_id)
         self.user_id = user_id
-
+        self.query_filter = query_filter
     def add_message(self, role: str, content: str):
         self.messages.append({"role": role, "content": content})
 
@@ -126,7 +127,8 @@ class PromptManagerAgent:
                 self.agent,
                 input=conversation_input,
                 context={
-                    "user_id": self.user_id
+                    "user_id": self.user_id,
+                    "query_filter": self.query_filter
                 },
             )
         else:
