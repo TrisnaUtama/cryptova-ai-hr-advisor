@@ -8,7 +8,7 @@ from core.ai.chroma import (
     openai_ef,
 )
 from core.ai.prompt_manager import PromptManager
-from core.ai.structured_model import CVBase, DocumentCheck
+from core.ai.structured_model import CVBase, DocumentCheck, ListJobMatchesBase
 from core.ai.system_prompt import DOCUMENT_CHECKER, CV_PARSER
 from core.methods import send_notification
 
@@ -26,6 +26,12 @@ from .models import (
     SYNC_STATUS_PROCESSING,
     SYNC_STATUS_COMPLETED,
 )
+
+from apps.job.models import Job, JobApplication, JOB_STATUS_CLOSED, JOB_STATUS_CREATED
+from django.forms.models import model_to_dict
+from apps.cv.utils import clean_null_bytes
+
+from core.ai.system_prompt import JOB_MATCHERS
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -272,6 +278,9 @@ def process_cv(document: CV):
             "done", filename, f"CV {cv_id_str} processing completed successfully."
         )
 
+        # Trigger job matching after CV processing is completed
+        match_job_with_cv(document.id)
+
     except Exception as e:
         logger.error(
             f"Critical error processing CV {filename} ({cv_id_str}): {str(e)}",
@@ -285,3 +294,58 @@ def process_cv(document: CV):
             f"CV processing failed for {filename} ({cv_id_str})",
             "error",
         )
+
+
+@task()
+def match_job_with_cv(cv_id):
+    """
+    For a given CV, match it against all open jobs in the same category.
+    """
+    try:
+        cv = CV.objects.get(id=cv_id)
+        if cv.sync_status != SYNC_STATUS_COMPLETED:
+            logger.info(f"CV {cv_id} not completed, skipping job matching.")
+            return
+
+        jobs = Job.objects.filter(
+            job_category__name=cv.candidate_category,
+            status__in=[JOB_STATUS_CREATED, JOB_STATUS_CLOSED]
+        )
+
+        print(f"Jobs for CV {cv_id}: {jobs}")
+
+        job_list = []
+        for job in jobs:
+            job_dict = model_to_dict(job)
+            job_dict["id"] = job.id 
+            job_list.append(job_dict)
+
+        cv_dict = {
+            "id": cv.id,
+            "candidate_name": cv.candidate_name,
+            "candidate_title": cv.candidate_title,
+            "candidate_category": cv.candidate_category,
+            "description": cv.description,
+        }
+
+        pm = PromptManager()
+        pm.add_message("system", JOB_MATCHERS)
+        pm.add_message("user", f"Here's the candidate CV: {cv_dict} \n\n Here's the list of job postings: {job_list}")
+        response = pm.generate_structured(ListJobMatchesBase)
+
+        for match in response.get("jobs", []):
+            try:
+                job = Job.objects.get(id=clean_null_bytes(match.get("job_id")))
+                if float(match.get("matching_score", 0)) > 40:
+                    JobApplication.objects.get_or_create(
+                        job=job,
+                        cv=cv,
+                        defaults={
+                            "matching_score": match.get("matching_score"),
+                            "reason": clean_null_bytes(match.get("reason"))
+                        }
+                    )
+            except Exception as e:
+                logger.error(f"Error creating JobApplication for CV {cv_id} and job {match.get('job_id')}: {e}")
+    except Exception as e:
+        logger.error(f"Error in match_job_with_cv for CV {cv_id}: {e}")

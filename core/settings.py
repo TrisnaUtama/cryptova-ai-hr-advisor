@@ -178,7 +178,7 @@ CHANNEL_LAYERS = {
 }
 
 # ChromaDB Configuration
-CHROMA_HOST = os.getenv("CHROMA_HOST", "chroma")
+CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT = os.getenv("CHROMA_PORT", "8010")
 
 HUEY = {
