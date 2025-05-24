@@ -78,3 +78,12 @@ class CVMatchBase(BaseModel):
 
 class ListApplicantsBase(BaseModel):
     applicants: list[CVMatchBase] = Field(description="The list of matched applicants")
+
+class JobMatchBase(BaseModel):
+    cv_id: str = Field(description="The id of the candidate")
+    job_id: str = Field(description="The id of the job")
+    matching_score: float = Field(description="The match score for this job")
+    reason: str = Field(description="The reason for the match score")
+
+class ListJobMatchesBase(BaseModel):
+    jobs: list[JobMatchBase] = Field(description="The list of matched jobs for the candidate")
