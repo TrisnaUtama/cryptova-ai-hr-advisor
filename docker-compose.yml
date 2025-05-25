@@ -8,6 +8,7 @@ services:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - tmp_volume:/tmp
     ports:
       - "8000:8000"
     env_file:
@@ -29,6 +30,7 @@ services:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - tmp_volume:/tmp
     env_file:
       - .env
     depends_on:
@@ -79,3 +81,4 @@ volumes:
   redis_data:
   static_volume:
   media_volume:
+  tmp_volume:
