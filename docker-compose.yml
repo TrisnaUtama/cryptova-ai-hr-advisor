@@ -15,7 +15,6 @@ services:
     depends_on:
       - db
       - redis
-      - chroma
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
@@ -36,7 +35,6 @@ services:
       - redis
       - db
       - web
-      - chroma
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "ps", "aux", "|", "grep", "huey"]
