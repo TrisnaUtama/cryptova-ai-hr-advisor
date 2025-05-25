@@ -99,6 +99,23 @@ def process_chat(message, session_id, user_id):
             
         return await sync_to_async(process_applicants)()
     
+    async def get_dict_applicants_list(job):
+        def process_applicants():
+            list_applicants = job.jobapplication_set.all()
+            list_applicants_dict = []
+            for applicant in list_applicants:
+                list_applicants_dict.append({
+                    "cv_id": applicant.cv.id,
+                    "matching_score": applicant.matching_score,
+                    "reason": applicant.reason,
+                    "candidate_name": applicant.cv.candidate_name,
+                    "candidate_title": applicant.cv.candidate_title,
+                    "candidate_description": applicant.cv.description
+                })
+            return list_applicants_dict
+        
+        return await sync_to_async(process_applicants)()
+
     async def main(user_id, message):
         # Get user
         user = await get_user()
@@ -107,6 +124,9 @@ def process_chat(message, session_id, user_id):
         job = await get_job(job_id)
 
         cv_id_list = await get_list_applicants(job)
+        list_applicants_dict = await get_dict_applicants_list(job)
+        print(list_applicants_dict)
+        print(job.description)
         
         # Initialize agent
         agent = PromptManagerAgent(
@@ -115,7 +135,7 @@ def process_chat(message, session_id, user_id):
         )
         agent.create_agent(
             name="Cryptova CV Advisor",
-            instructions=CV_ADVISOR,
+            instructions=CV_ADVISOR.format(job_description=job.description, list_of_applicants=list_applicants_dict),
         )
         agent.add_tool(get_list_of_cvs)
         agent.add_tool(get_cv_information)
@@ -188,7 +208,7 @@ def process_chat(message, session_id, user_id):
                 
                 pm = PromptManager()
                 pm.add_message(role="system", content=FOLLOWUP_ACTION_PROMPT)
-                pm.add_message(role="user", content=f"Conversation Response: {final_message} \n Candidate Data: {tool_call_output}")
+                pm.add_message(role="user", content=f"Conversation Response: {final_message} \n Candidate Data: {tool_call_output} \n Job Description: {job.description}")
                 result = pm.generate_structured(FollowupActionBase)
                 print(result.get("action"))
                 if result.get("action") != 'null':

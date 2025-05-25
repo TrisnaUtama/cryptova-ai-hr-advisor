@@ -38,11 +38,10 @@ async def get_cv_information(ctx: RunContextWrapper[Any],query: str, n_result: i
     query_filter = {
         "$or": filter_cv_id
     }
-    print(query_filter)
     collection = chroma.get_collection(name=CV_COLLECTION_NAME, embedding_function=openai_ef)
     result = collection.query(query_texts=[query], n_results=n_result, include=["documents", "metadatas"], where=query_filter)
 
-    print(result)
+    print(result["metadatas"])
 
     context = ""
     if len(result["documents"]) > 0:

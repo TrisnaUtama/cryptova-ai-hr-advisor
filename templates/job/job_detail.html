@@ -1,5 +1,5 @@
-{% extends 'base_sidebar.html' %} {% load humanize %} 
-{% block title %} Job Detail {% endblock %} 
+{% extends 'base_sidebar.html' %} {% load humanize %}
+{% block title %} Job Detail {% endblock %}
 {% block sidebar_content %}
 <div>
     <div class="mr-120 overflow-y-auto">
@@ -232,9 +232,11 @@
                         <div class="max-w-xs flex flex-col bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md"
                             id="followup-content">
                             This is a highly recommended candidate. Would you like to schedule an interview?
-                            <button type="button" onclick="openFollowupModal()"
-                                class="mt-2 text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Schedule
-                                Interview</button>
+                            <button type="button"
+                                onclick="openFollowupModal('{{ chat.followup_action.payload.interview_type }}', '{{ chat.followup_action.payload.cv_id }}', `{{ chat.followup_action.message }}`)"
+                                class="mt-2 text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                Schedule Interview
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -307,7 +309,33 @@
     let isStreaming = false;
     let assistantStreamBuffer = "";
 
-    function openFollowupModal() {
+    function openFollowupModal(interview_type, cv_id, message) {
+        const followUpModalContent = document.getElementById("followup-modal-content")
+        followUpModalContent.innerHTML = `
+                <p>We've found a highly recommended candidate for you. We recommend you to take action for schedule an ${interview_type.replace("_", " ")} interview with candidate. </p>
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                We still working on for directly schedule interview with candidate. But you can copy and
+                                paste this body message for inviting the user manually through company email.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 bg-gray-100 p-4">
+                    ${marked.parse(message)}
+                </div>
+            </div>
+        `
         const followupModal = document.getElementById("followup-modal")
         followupModal.classList.remove("hidden")
         followupModal.classList.add("flex")
@@ -328,6 +356,10 @@
             sendBtn.classList.remove("opacity-50", "cursor-not-allowed");
             inputDom.focus();
         }
+    }
+
+    function escapeForJS(str) {
+        return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n');
     }
 
     function initializeWebSocket(sessionId) {
@@ -355,7 +387,8 @@
                 if (data.message.action) {
                     const payloadAction = data.message.payload
                     const cv_id = payloadAction.cv_id
-                    const message = data.message.message
+                    const message = escapeForJS(data.message.message)
+                    console.log(message)
                     const interview_type = payloadAction.interview_type.replace("_", " ")
                     const followupContainer = document.createElement("div");
                     followupContainer.className = "flex justfify-end mb-4";
@@ -365,38 +398,11 @@
                             <div class="max-w-xs flex flex-col bg-white border border-gray-200 text-gray-900 rounded-2xl px-5 py-3 shadow-md"
                                 id="followup-content">
                                 This is a highly recommended candidate. Would you like to schedule an interview?
-                                <button type="button" onclick="openFollowupModal()" class="mt-2 text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Schedule Interview</button>
+                                <button type="button" onclick="openFollowupModal('${interview_type}', '${cv_id}', '${message}')" class="mt-2 text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Schedule Interview</button>
                             </div>
                         </div>
                     `
                     notifContainer.append(followupContainer);
-
-                    const followUpModalContent = document.getElementById("followup-modal-content")
-                    followUpModalContent.innerHTML = `
-                         <p>We've found a highly recommended candidate for you. We recommend you to take action for schedule an ${interview_type} interview with candidate. </p>
-                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
-                                <div class="flex">
-                                    <div class="flex-shrink-0">
-                                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm text-yellow-700">
-                                            We still working on for directly schedule interview with candidate. But you can copy and
-                                            paste this body message for inviting the user manually through company email.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 bg-gray-300 p-4">
-                                ${marked.parse(message)}
-                            </div>
-                        </div>
-                    `
                 }
             } else {
                 // Do NOT initialize from innerHTML!
